@@ -21,7 +21,7 @@ public class GeneralFilter implements Filter{
 	
 	@Override
 	public void destroy() {
-		Filter.super.destroy();
+		//Filter.super.destroy();
 	}
 	
 	@Override
