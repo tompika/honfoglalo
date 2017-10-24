@@ -1,4 +1,4 @@
-package hu.unideb.inf.rft.util;
+package rft.util;
 
 
 public class CustomErrorType {

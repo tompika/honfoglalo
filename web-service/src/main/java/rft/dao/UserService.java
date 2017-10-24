@@ -1,9 +1,11 @@
-package hu.unideb.inf.rft.service;
+package rft.dao;
 
 
 import java.util.List;
 
-import hu.unideb.inf.rft.model.User;
+import rft.model.User;
+
+
 
 public interface UserService {
 	
@@ -13,13 +15,9 @@ public interface UserService {
 	
 	void saveUser(User user);
 	
-	void updateUser(User user);
-	
-	void deleteUserById(long id);
+	User updateUser(User user);
 
 	List<User> findAllUsers();
-	
-	void deleteAllUsers();
 	
 	boolean isUserExist(User user);
 	
