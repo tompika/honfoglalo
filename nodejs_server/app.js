@@ -14,8 +14,13 @@ app.get('/', function(req, res) {
   res.sendfile(__dirname + '/index.html');
 });
 
+app.get('/game', function(req, res) {
+  res.sendfile(__dirname + '/game.html');
+});
+
 // usernames which are currently connected to the chat
 var usernames = {};
+var userGameReady = {};
 
 // rooms which are currently available in chat
 var rooms = ['room1', 'room2', 'room3'];
@@ -24,16 +29,58 @@ var rooms = ['room1', 'room2', 'room3'];
 // Create a Node.js based http server on port 8080
 var server = require('http').createServer(app).listen(process.env.PORT || 8080);
 
+
+
 // Create a Socket.IO server and attach it to the http server
 var io = require('socket.io').listen(server);
 
+console.log("SERVER PORT: 8080");
+//---------------------------------
+
+process.stdin.resume();//so the program will not close instantly
+function exitHandler(options, err) {
+    if (options.cleanup){
+      console.log('clean');
+    }
+    if (err)
+      console.log(err.stack);
+    if (options.exit)
+      process.exit();
+}
+//do something when app is closing
+process.on('exit', exitHandler.bind(null,{cleanup:true}));
+//catches ctrl+c event
+process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+// catches "kill pid" (for example: nodemon restart)
+process.on('SIGUSR1', exitHandler.bind(null, {exit:true}));
+process.on('SIGUSR2', exitHandler.bind(null, {exit:true}));
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
+
+
+//----------------------------
+
 // Reduce the logging output of Socket.IO
 io.set('log level',1);
+
+function printSockets(){
+  console.log('------------------------------------');
+  console.log("Print sockets");
+  console.log(io.sockets.socket);
+  console.log('------------------------------------');
+}
 
 io.sockets.on('connection', function(socket) {
 
   console.log('client connected: ', socket.id);
   console.log('Client size: ', io.sockets.clients().length);
+
+  if (socket == null){
+    socket.emit('disconnect', function(){
+      console.log('Disconnect: ' , socket);
+    });
+  }
+
 
   // when the client emits 'adduser', this listens and executes
   socket.on('adduser', function(username) {
@@ -57,6 +104,32 @@ io.sockets.on('connection', function(socket) {
     // we tell the client to execute 'updatechat' with 2 parameters
     io.sockets.in(socket.room).emit('updatechat', socket.username, data);
   });
+
+  socket.on('newGame', function(username){
+
+      //printSockets();
+
+      if (userGameReady[username] == username){
+        console.log('Mar felvettunk a ready listába csíra!!');
+        return;
+      }
+
+      userGameReady[username] = username;
+
+      console.log("Elmentve a ready listaba: " , username );
+      console.log(userGameReady);
+      console.log(Object.keys(userGameReady).length);
+
+
+      if (Object.keys(userGameReady).length == 3) {
+        console.log("---- MEGLETT A 3 JATEKOS INDUL A MENET! -----");
+
+          io.sockets.in(socket.room).emit('start_new_game', socket.username, data);
+      }
+
+
+  });
+
 
   socket.on('switchRoom', function(newroom) {
     // leave the current room (stored in session)
