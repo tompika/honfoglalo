@@ -1,0 +1,31 @@
+<!--<div class="panel panel-default">
+      <div class="panel-heading">Chat</div>
+      <div class="panel-body">
+        <div class="container" *ngFor="let msg of conversation">
+        <div class="container">
+          <div class="row message-bubble">
+            <p class="text-muted">{{msg.userName}}:</p>
+            <span>{{msg.text}}</span>
+
+          </div>
+
+        </div>
+      </div>
+      <div class="panel-footer">
+        <div class="input-group">
+          <input id="country" type="text" class="form-control" [(ngModel)]="message" (keypress)="keypressHandler($event)">
+          <span class="input-group-btn">
+            <button class="btn btn-default" (click)="send()" type="submit" type="button">Send</button>
+          </span>
+        </div>
+      </div>
+    </div> -->
+
+
+<p>
+DYLO CHAT
+</p>
+<div *ngFor="let message of messages">
+ {{message.from}}:  {{message.text}} 
+</div>
+<input [(ngModel)]="message" /><button (keypress)="keypressHandler($event)" (click)="sendMessage()">Send</button>
