@@ -18,6 +18,7 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.io.Serializable;
 
 import rft.model.UserRole;
 
@@ -33,16 +34,17 @@ import rft.model.UserRole;
 	@NamedQuery(name="User.findById", query="select u from User u where u.id = :id")
 	
 })
-public class User {
+public class User implements Serializable{
 	@Id
 	@Column(name = "ID_USER")
 	@SequenceGenerator(name = "USER_SEQ", sequenceName = "USER_SEQ", allocationSize = 1, initialValue = 1000)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_SEQ")
-	private long id;
+        private long id;
 	
 	@Column(name = "USERNAME", nullable = false)
 	private String username;
-
+        
+       
 	@Column(name = "PASSWORD", nullable = false)
 	private String password;
 	
@@ -131,7 +133,8 @@ public class User {
 	public void setUsername(String username) {
 		this.username = username;
 	}
-
+        
+       
 	public String getPassword() {
 		return password;
 	}
@@ -189,6 +192,11 @@ public class User {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
+
+    @Override
+    public String toString() {
+        return "User{" + "id=" + id + ", username=" + username + ", password=" + password + ", userRole=" + userRole + ", enabled=" + enabled + ", firstname=" + firstname + ", lastname=" + lastname + ", date=" + date + ", email=" + email + '}';
+    }
 	
 	
 	

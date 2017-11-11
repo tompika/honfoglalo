@@ -1,5 +1,6 @@
 package rft.model;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,7 +16,7 @@ import javax.persistence.Table;
 @NamedQueries({
 	@NamedQuery(name="Question.findAll", query="Select q from Question q")
 })
-public class Question {
+public class Question implements Serializable{
 	
 	@Id
 	@Column(name = "ID_QUESTION")

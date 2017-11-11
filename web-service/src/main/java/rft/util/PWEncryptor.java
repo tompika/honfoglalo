@@ -1,10 +1,10 @@
 package rft.util;
 
 import org.jasypt.util.password.ConfigurablePasswordEncryptor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 
-public class PWEncryptor implements PasswordEncoder{
+
+public class PWEncryptor/* implements PasswordEncoder*/{
 	private ConfigurablePasswordEncryptor passwordEncryptor;
 			
 	public PWEncryptor() {
@@ -14,13 +14,11 @@ public class PWEncryptor implements PasswordEncoder{
 	}
 
 
-	@Override
-	public String encode(CharSequence rawPassword) {
-		return passwordEncryptor.encryptPassword(rawPassword.toString());
+	public String getEncryptedPassword(String pw){
+		return passwordEncryptor.encryptPassword(pw);
 	}
-
-	@Override
-	public boolean matches(CharSequence rawPassword, String encodedPassword) {
-		return passwordEncryptor.checkPassword(rawPassword.toString(), encodedPassword);
+	
+	public boolean checkPassword(String plainPassword, String encryptedPassword){
+		return passwordEncryptor.checkPassword(plainPassword, encryptedPassword);
 	}
 }

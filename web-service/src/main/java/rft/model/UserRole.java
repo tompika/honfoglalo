@@ -1,5 +1,6 @@
 package rft.model;
 
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -13,7 +14,7 @@ import javax.persistence.UniqueConstraint;
 
 @Entity
 @Table(name = "USERROLE", uniqueConstraints={@UniqueConstraint(columnNames={ "ROLE", "ID_USER" })})
-public class UserRole {
+public class UserRole implements Serializable{
 	
 	@Id
 	@Column(name = "ID_ROLE")

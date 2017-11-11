@@ -5,20 +5,20 @@ import java.util.stream.Collectors;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.GrantedAuthority;
+/*import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;*/
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import rft.dao.UserService;
 import rft.model.User;
 import rft.model.UserRole;
-@Service("userDetailsService")
-public class UserDetailsServiceImpl implements UserDetailsService{
-	
+//@Service("userDetailsService")
+public class UserDetailsServiceImpl /*implements UserDetailsService*/{
+	/*
 	private static Logger logger = Logger.getLogger(UserDetailsServiceImpl.class);
 	
 	@Autowired
@@ -60,5 +60,5 @@ public class UserDetailsServiceImpl implements UserDetailsService{
 		}
 		return tmp;
 	}
-	
+	*/
 }

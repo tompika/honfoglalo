@@ -1,5 +1,7 @@
 package rft.dao;
 
+import java.util.List;
+import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -16,7 +18,17 @@ public class QuestionDAO implements QuestionService{
 	
 	@Override
 	public Question getQuestion() {
-		return em.createNamedQuery("Question.findAll",Question.class).getSingleResult();
+            
+            List<Question> all = em.createNamedQuery("Question.findAll",Question.class).getResultList();
+            
+            Random random = new Random();
+            int min, max, rand;
+            min = 0;
+            max = all.size()-1;
+            rand = random.nextInt(max - min + 1) + min;
+           
+            
+            return all.get(rand);
 	}
 
 }

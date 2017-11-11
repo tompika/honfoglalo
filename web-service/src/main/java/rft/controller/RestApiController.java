@@ -7,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,9 +51,10 @@ public class RestApiController {
 	
 	@RequestMapping(value="/user/" ,method=RequestMethod.GET)
 	public ResponseEntity<User> getCurrentuser(){
-		User u = userService.findByName(SecurityContextHolder.getContext().getAuthentication().getName());
+		/*User u = userService.findByName(SecurityContextHolder.getContext().getAuthentication().getName());
 		logger.info("Getting current user");
-		return new ResponseEntity<User>(u,HttpStatus.OK);
+		return new ResponseEntity<User>(u,HttpStatus.OK);*/
+                return null;
 	}
 	
 
