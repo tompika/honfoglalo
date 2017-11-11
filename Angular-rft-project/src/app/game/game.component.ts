@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { QuestionService, ChatService, AlertService } from '../_services/index';
+import { QuestionService, AlertService } from '../_services/index';
+import { NewChatService } from '../_services/newchat.service';
 import { Question } from '../_models/question';
 
 @Component({
@@ -17,52 +18,70 @@ export class GameComponent implements OnInit {
     answer2: "Passz",
     answer3: "Valami majd lesz",
     answer4: "Passz",
-    };
+  };
 
-    allQuestion: Question[];
+  _question: Question;
 
-  data ;
+  answer;
+
+
+  allQuestion: Question[];
+
+  data;
+  connection;
 
   answerClicked: boolean = false;
 
 
   constructor(private _questionService: QuestionService,
-              private _chatService: ChatService,
-              private _alertService: AlertService) {
+    private _chatService: NewChatService,
+    private _alertService: AlertService) {
 
   }
 
   ngOnInit() {
+    /*  this.connection = this._chatService.getQuestion().subscribe(question => {
+        this._question = question as Question;
+        console.log(this._question);
+      })
+      console.log("game comp init");*/
 
-    //this.question = this._questionService.getRandomQuestion();
-    //console.log( this._questionService.getRandomQuestion())
-
+    this._chatService
+      .getQuestion()
+      .subscribe(question => {
+        this.answer = question;
+      });
   }
 
 
-  btn1(){
+
+  btn1() {
     console.log("BTN1");
     //this.answerClicked = true;
-    this._chatService.sendValasz(1);
+  //  this._chatService.sendValasz(1);
     this._alertService.success("1. gomb kivalasztva!");
+    this._chatService.sendAnswer(1);
   }
-  btn2(){
+  btn2() {
     console.log("BTN2");
     //this.answerClicked = true;
-    this._chatService.sendValasz(2);
+  //  this._chatService.sendValasz(2);
     this._alertService.success("2. gomb kivalasztva!");
+    this._chatService.sendAnswer(2);
   }
-  btn3(){
+  btn3() {
     console.log("BTN3");
     //this.answerClicked = true;
-    this._chatService.sendValasz(3);
+//    this._chatService.sendValasz(3);
     this._alertService.success("3. gomb kivalasztva!");
+    this._chatService.sendAnswer(3);
   }
-  btn4(){
+  btn4() {
     console.log("BTN4");
     //this.answerClicked = true;
-    this._chatService.sendValasz(4);
+//    this._chatService.sendValasz(4);
     this._alertService.success("4. gomb kivalasztva!");
+    this._chatService.sendAnswer(4);
   }
 
 }

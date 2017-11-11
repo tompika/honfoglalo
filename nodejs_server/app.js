@@ -15,6 +15,9 @@ var server = require('http').createServer(app).listen(process.env.PORT || 8080);
 var io = require('socket.io').listen(server);
 
 
+//http kereshez
+const http = require('http');
+
 // Add headers
 app.use(function(req, res, next) {
 
@@ -59,7 +62,7 @@ var rooms = ['room1', 'room2', 'room3'];
 
 
 
-console.log("SERVER PORT: 8080", server.PORT);
+console.log("SERVER PORT: 8080");
 //---------------------------------
 
 process.stdin.resume(); //so the program will not close instantly
@@ -96,27 +99,40 @@ process.on('uncaughtException', exitHandler.bind(null, {
 //----------------------------
 
 // Reduce the logging output of Socket.IO
-io.set('log level', 1);
+io.set('log level', 3);
 
 io.sockets.on('connection', function(socket) {
 
+  //ha valaki csatlakozik
   console.log('client connected: ', socket.id);
-  //console.log('Client size: ', io.sockets.clients().length);
+    io.emit('message', {from: 'SERVER', text: "Lets the game begins!"});
 
-  if (socket == null) {
-    socket.emit('disconnect', function() {
-      console.log('Disconnect: ', socket);
-    });
-  }
-
+//ha valaki kuldott valaszt
   socket.on('send-answer', (answer) => {
-    //io.emit('message', data);
+    io.emit('question', 'ezitten egy kerdes' + answer.btn_id + "JA ES VARJAL MIG A TOBBI IS AD VALASZT");
+
     console.log(answer.from + "-tol kapott valasz: " + answer.btn_id);
   });
 
 
-  socket.on('get-answer', (answer) => {
-    //io.emit('message', data);
+  socket.on('get_answer', (answer) => {
+    var data = '';
+    http.get('http://localhost:8090/SpringBootBasic/api/question/', (resp) => {
+
+
+      // A chunk of data has been recieved.
+      resp.on('data', (chunk) => {
+        data += chunk;
+        console.log("QUESTION: " + data)
+      });
+
+    }).on("error", (err) => {
+      console.log("Error: " + err.message);
+    });
+
+    console.log("Kuldott kerdes: " + data);
+
+    io.emit('question', data);
 
   });
 
@@ -133,6 +149,8 @@ io.sockets.on('connection', function(socket) {
 
   // when the client emits 'adduser', this listens and executes
   socket.on('adduser', function(username) {
+
+    console.log("Add User: " + username);
     // store the username in the socket session for this client
     socket.username = username;
     // store the room name in the socket session for this client

@@ -17,13 +17,16 @@
           <button [disabled]="answerClicked" (click)="btn4()" type="button" class="btn">{{question.answer4}}</button>
         </div>
         <div class="panel-body">
+          <p>Valasz: {{answer}} </p>
           <br>terkep helye
           <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
         </div>
       </div>
     </div>
     <div class="col-sm-4" no-float>
-      <app-chat></app-chat>
+      <!-- <app-chat></app-chat> -->
+
+      <app-newchat></app-newchat>
     </div>
   </div>
 </div>

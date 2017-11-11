@@ -20,6 +20,12 @@ import { RegisterComponent } from './register/register.component';
 import { ChatregComponent } from './chatreg/chatreg.component';
 import { ChatComponent } from './chat/chat.component';
 
+import { SocketIoModule, SocketIoConfig } from 'ng-socket-io';
+import { NewchatComponent } from './newchat/newchat.component';
+import { NewChatService } from './_services/newchat.service';
+
+const config: SocketIoConfig = { url: 'http://localhost:8080', options: {} };
+
 
 
 @NgModule({
@@ -34,12 +40,15 @@ import { ChatComponent } from './chat/chat.component';
     AlertComponent,
     RegisterComponent,
     ChatregComponent,
-    ChatComponent
+    ChatComponent,
+    NewchatComponent
   ],
   imports: [
     FormsModule,
     HttpModule,
     BrowserModule,
+    SocketIoModule.forRoot(config),
+
     CONST_ROUTING
   ],
   providers: [
@@ -48,7 +57,8 @@ import { ChatComponent } from './chat/chat.component';
         AuthenticationService,
         UserService,
         ChatService,
-        QuestionService],
+        QuestionService,
+        NewChatService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

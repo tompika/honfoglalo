@@ -35,10 +35,10 @@ export class ChatComponent {
   }*/
 
   ngOnInit() {
-      this.connection = this._chatService.getMessages().subscribe(message => {
+  /*    this.connection = this._chatService.getMessages().subscribe(message => {
         this.messages.push(message);
       })
-      console.log("chat comp init");
+      console.log("chat comp init");*/
     }
 
 
@@ -47,6 +47,8 @@ export class ChatComponent {
       this.message = '';
     }
 
+
+
   keypressHandler(event) {
     if (event.keyCode === 13) {
       this.sendMessage();
@@ -54,8 +56,8 @@ export class ChatComponent {
   }
 
   ngOnDestroy() {
-    //this.connection.unsubscribe();
-    this._chatService.logout();
+    this.connection.unsubscribe();
+    //this._chatService.logout();
   }
 
 }
