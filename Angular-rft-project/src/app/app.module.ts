@@ -20,6 +20,8 @@ import { RegisterComponent } from './register/register.component';
 import { ChatregComponent } from './chatreg/chatreg.component';
 import { ChatComponent } from './chat/chat.component';
 
+
+
 @NgModule({
   declarations: [
     AppComponent,

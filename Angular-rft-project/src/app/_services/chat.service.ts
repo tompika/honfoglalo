@@ -10,44 +10,52 @@ export class ChatService {
   private url = 'http://localhost:8080';
   private socket;
 
+  private isConnected;
+
   private l_userName = "";
 
   constructor() {
-    this.socket = io.connect('http://localhost:8080');
 
-    this.socket.on('connect', function() {
-      // call the server-side function 'adduser' and send one parameter (value of prompt)
-      this.l_userName = prompt("Hogy hívnak dylym?");
 
-      console.log(this.l_userName);
-      this.socket.emit('adduser', this.l_userName);
-/*
-      this.socket.on('user_dc', function(data) {
-        this.lelepett = data;
-      }.bind(this));
+      this.socket = io.connect('http://localhost:8080');
+      this.socket.on('connect', function() {
+        // call the server-side function 'adduser' and send one parameter (value of prompt)
+        this.l_userName = prompt("Hogy hívnak?");
+        localStorage.setItem('chatUserName', this.l_userName);
 
-*/
+        console.log(this.l_userName);
+        this.socket.emit('adduser', this.l_userName);
+        /*
+              this.socket.on('user_dc', function(data) {
+                this.lelepett = data;
+              }.bind(this));
 
-    });
-    console.log("SERVICE CONST");
+        */
+
+      });
+      console.log("SERVICE CONST");
+    }
+
+
+  logout(){
+    this.socket.emit('disconnect');
   }
 
 
 
   sendMessage(message) {
-    if( message != ''){
-      this.socket.emit('add-message', {from:'petike', text: message});
+    if (message != '') {
+      this.socket.emit('add-message', { from: localStorage.getItem('chatUserName'), text: message });
     }
   }
 
-  sendValasz(btn_id){
-    console.log("KAPOTT BTN ID: " + btn_id);
-    this.socket.emit('send-answer', {from: 'petike', btn_id: btn_id});
+  sendValasz(btn_id) {
+    this.socket.emit('send-answer', { from: localStorage.getItem('chatUserName'), btn_id: btn_id });
   }
 
   getMessages() {
     let observable = new Observable(observer => {
-      this.socket = io('http://localhost:8080');
+      //this.socket = io('http://localhost:8080');
       this.socket.on('message', (data) => {
         observer.next(data);
       });

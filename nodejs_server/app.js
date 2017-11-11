@@ -115,6 +115,14 @@ io.sockets.on('connection', function(socket) {
   });
 
 
+  socket.on('get-answer', (answer) => {
+    //io.emit('message', data);
+
+  });
+
+
+
+
   socket.on('add-message', (data) => {
     io.emit('message', data);
 

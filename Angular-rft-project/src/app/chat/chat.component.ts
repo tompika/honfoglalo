@@ -21,7 +21,6 @@ export class ChatComponent {
   constructor(
     private _router: Router,
     private _chatService: ChatService) {
-
     }
 
   /*ngOnInit() {
@@ -39,6 +38,7 @@ export class ChatComponent {
       this.connection = this._chatService.getMessages().subscribe(message => {
         this.messages.push(message);
       })
+      console.log("chat comp init");
     }
 
 
@@ -54,7 +54,8 @@ export class ChatComponent {
   }
 
   ngOnDestroy() {
-    this.connection.unsubscribe();
+    //this.connection.unsubscribe();
+    this._chatService.logout();
   }
 
 }

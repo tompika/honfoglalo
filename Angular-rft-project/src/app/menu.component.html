@@ -4,13 +4,14 @@
       <a class="navbar-brand" [routerLink]="['/home']">NagyonGame</a>
     </div>
     <ul class="nav navbar-nav">
-      <li [routerLinkActive]="['active']"><a [routerLink]="['/home']">Kezdőlap</a></li>
+      <li *ngIf="!inGame" [routerLinkActive]="['active']"><a [routerLink]="['/home']">Kezdőlap</a></li>
       <li [routerLinkActive]="['active']"><a [routerLink]="['/game']">Game</a></li>
 
     </ul>
     <ul class="nav navbar-nav navbar-right">
-      <li><a [routerLink]="['/register']" ><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
-      <li><a [routerLink]="['/login']"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      <li><a *ngIf="!inGame" [routerLink]="['/register']" ><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+      <li><a *ngIf="!inGame" [routerLink]="['/login']"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      <li><a *ngIf="!inGame" (click)="logout()" [routerLink]="['/']"><span class="glyphicon glyphicon-log-out"></span> Logout</a></li>
     </ul>
   </div>
 </nav>

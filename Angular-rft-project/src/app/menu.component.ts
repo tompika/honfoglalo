@@ -7,9 +7,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class MenuComponent implements OnInit {
 
+  private inGame: false;
+
   constructor() { }
 
   ngOnInit() {
+  }
+
+  logout(){
+    if(localStorage.getItem('currentUser') != undefined)
+      localStorage.removeItem('currentUser');
   }
 
 }

@@ -1,11 +1,12 @@
 import { Injectable } from '@angular/core';
 import { Http, Headers, Response, RequestOptions } from '@angular/http';
+import { AlertService } from './alert.service';
 import { Observable } from 'rxjs/Observable';
 import 'rxjs/add/operator/map'
 
 @Injectable()
 export class AuthenticationService {
-    constructor(private http: Http) { }
+    constructor(private http: Http, private _alertService: AlertService) { }
 
     login(username: string, password: string) {
 
@@ -13,15 +14,17 @@ export class AuthenticationService {
       let options = new RequestOptions( {headers: headers });
 
 
-        return this.http.post('http://localhost:8090/SpringBootBasic/api/authenticate', JSON.stringify({ username : username, password: password }), options)
+        return this.http.post('http://localhost:8090/SpringBootBasic/authenticate', JSON.stringify({ username : username, password: password }), options)
             .map((response: Response) => {
 
                 console.log(response);
                 let user = response.json();
-                if (user && user.token) {
+                if (user/* && user.token*/) {
                     // store user details and jwt token in local storage to keep user logged in between page refreshes
                     localStorage.setItem('currentUser', JSON.stringify(user));
                     console.log(localStorage.getItem('currentUser'));
+                    this._alertService.success("Sikeres belepes!" + user.username  + " belepve");
+                    //console.log(user.token);
                 }
 
                 return user;

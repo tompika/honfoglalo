@@ -23,9 +23,9 @@
 
 
 <p>
-DYLO CHAT
+Fancy chat
 </p>
 <div *ngFor="let message of messages">
- {{message.from}}:  {{message.text}} 
+ {{message.from}}:  {{message.text}}
 </div>
 <input [(ngModel)]="message" /><button (keypress)="keypressHandler($event)" (click)="sendMessage()">Send</button>

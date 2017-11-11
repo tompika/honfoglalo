@@ -12,11 +12,11 @@ export class UserService {
 
     getAll() {
         return '';
-        //return this.http.get('http://localhost:8080/bandsupport/api/user/').map((response: Response) => response.json());
+        //return this.http.get('http://localhost:8080/api/user/').map((response: Response) => response.json());
     }
 
     getById(_id: string) {
-        return this.http.get('/bandsupport/api/user/' + _id).map((response: Response) => response.json());
+        return this.http.get('/api/user/' + _id).map((response: Response) => response.json());
     }
 
     create(user: User) {
@@ -25,7 +25,7 @@ export class UserService {
         let options = new RequestOptions( {headers: headers });
 
         //console.log(JSON.stringify(user));
-        return this.http.post('http://localhost:8090/SpringBootBasic/api/registration', user, options);
+        return this.http.post('http://localhost:8090/SpringBootBasic/registration', user, options);
     }
 
     update(user: User) {

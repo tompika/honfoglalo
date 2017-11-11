@@ -24,10 +24,11 @@ export class RegisterComponent{
       data => {
         this.alertService.success('Registration successful', true);
         console.log("SIKERES REG DLYL!");
+        this.alertService.success("Sikeres regisztracio!");
         this.router.navigate(['/login']);
       },
       error => {
-        this.alertService.error(error);
+        this.alertService.error("Sikertelen registracio!");
         this.loading = false;
       });
   }

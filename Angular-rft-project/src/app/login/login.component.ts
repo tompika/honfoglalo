@@ -36,17 +36,16 @@ export class LoginComponent implements OnInit {
   login() {
 
     this.loading = true;
-    console.log(this.model.username + " " + this.model.password);
-
     this.authenticationService.login(this.model.username, this.model.password)
       .subscribe(
       data => {
-        this.router.navigate(['returnUrl']);
-        console.log("SIkeres belepes DYLY!");
+        this.router.navigate(['/game']);
+        console.log("Sikeres belepes!");
+        this.alertService.success("Sikeres belepes!");
         this.loading = false;
       },
       error => {
-        this.alertService.error(error);
+        this.alertService.error("Sikertelen belepes!");
         this.loading = false;
       });
 
