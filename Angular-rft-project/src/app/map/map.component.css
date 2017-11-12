@@ -1,0 +1,19 @@
+svg {
+  display:block;
+  width:400px; 
+  height:380px;
+  margin:0 auto;
+}
+polygon {  
+  fill:#ccc;
+  stroke:#000000; 
+  stroke-width:0.01;
+  transition: fill .15s;
+}
+a:hover .teal { fill:teal; }
+a:hover .pink { fill:pink; }
+a:focus {
+  fill: pink;
+  stroke: red;
+  stroke-width: 1;
+}

@@ -16,10 +16,11 @@
           <button [disabled]="answerClicked" (click)="btn3()" type="button" class="btn">{{question.answer3}}</button>
           <button [disabled]="answerClicked" (click)="btn4()" type="button" class="btn">{{question.answer4}}</button>
         </div>
-        <div class="panel-body">
+        <div class="panel-body" style="height: 500px;width: 500px;"  >
           <p>Valasz: {{answer}} </p>
           <br>terkep helye
-          <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+          <br>
+          <app-map></app-map>
         </div>
       </div>
     </div>
