@@ -22,7 +22,7 @@ const http = require('http');
 app.use(function(req, res, next) {
 
   // Website you wish to allow to connect
-  //res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200/game');
+  res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
 
   // Request methods you wish to allow
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
@@ -52,12 +52,17 @@ app.get('/game', function(req, res) {
   res.sendfile(__dirname + '/game.html');
 });
 
+app.get('/getData', function (req, res) {
+	var asd = 5;
+	res.json(asd);
+})
+
 // usernames which are currently connected to the chat
 var usernames = {};
-var userGameReady = {};
+var userready = {};
 
 // rooms which are currently available in chat
-var rooms = ['room1', 'room2', 'room3'];
+var rooms = ['room1'];
 
 
 
@@ -136,7 +141,10 @@ io.sockets.on('connection', function(socket) {
 
   });
 
-
+  socket.on('rdyusers', function() {
+	  var asd = 5;
+	  return asd;
+	  });
 
 
   socket.on('add-message', (data) => {
@@ -153,6 +161,8 @@ io.sockets.on('connection', function(socket) {
     console.log("Add User: " + username);
     // store the username in the socket session for this client
     socket.username = username;
+    //player status
+    socket.ready = false;
     // store the room name in the socket session for this client
     socket.room = 'room1';
     // add the client's username to the global list
@@ -197,6 +207,18 @@ io.sockets.on('connection', function(socket) {
 
   });
 
+  
+  
+  socket.on('ready',function(){
+	 socket.ready = true;
+	 userready[socket] = socket;
+	 console.log('user ready: ' + socket.username);
+	 console.log('ready users: ' + Object.keys(userready).length)
+  });
+  
+  socket.on('getNumberOfReadyPlayers', function(){
+	  
+  });
 
   socket.on('switchRoom', function(newroom) {
     // leave the current room (stored in session)
@@ -215,7 +237,7 @@ io.sockets.on('connection', function(socket) {
   // when the user disconnects.. perform this
   socket.on('disconnect', function() {
 
-
+	console.log('disconnect', socket.id);
     // remove the username from global usernames list
     delete usernames[socket.username];
     // update list of users in chat, client-side
