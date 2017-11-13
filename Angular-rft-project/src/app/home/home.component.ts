@@ -18,7 +18,7 @@ export class HomeComponent implements OnInit {
   constructor(private userService: UserService,
               private _chatService: NewChatService) {
     this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    console.log("JELENLEGI USER"  + this.currentUser);
+    console.log("Jelenlegi felhasznalo: "  + this.currentUser.username);
   }
 
   ngOnInit() {

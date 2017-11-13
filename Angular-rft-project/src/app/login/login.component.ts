@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 
 import { AlertService } from '../_services/alert.service';
+import { NewChatService } from '../_services/newchat.service';
 import { AuthenticationService } from '../_services/authentication.service';
 import { User } from '../_models/user';
 
@@ -19,11 +20,13 @@ export class LoginComponent implements OnInit {
 
   user: User;
 
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private authenticationService: AuthenticationService,
-    private alertService: AlertService) { }
+    private alertService: AlertService,
+    private chatService: NewChatService) { }
 
   ngOnInit() {
     // reset login status
@@ -39,9 +42,11 @@ export class LoginComponent implements OnInit {
     this.authenticationService.login(this.model.username, this.model.password)
       .subscribe(
       data => {
-        this.router.navigate(['/game']);
+        this.router.navigate(['/home']);
         console.log("Sikeres belepes!");
         this.alertService.success("Sikeres belepes!");
+        this.user = JSON.parse(localStorage.getItem('currentUser'));
+        this.chatService.addUser(this.user.username);
         this.loading = false;
       },
       error => {

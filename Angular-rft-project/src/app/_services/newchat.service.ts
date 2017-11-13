@@ -5,7 +5,6 @@ import { Socket } from 'ng-socket-io';
 export class NewChatService {
 
   constructor(private socket: Socket) {
-    console.log("NEW CHAT SERVICE CONST");
   }
 
   sendMessage(msg) {
@@ -18,6 +17,10 @@ export class NewChatService {
 
   sendReady(){
     this.socket.emit("ready", {});
+  }
+
+  addUser(username){
+    this.socket.emit("adduser", username);
   }
 
   getMatchResult() {

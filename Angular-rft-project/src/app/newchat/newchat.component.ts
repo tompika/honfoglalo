@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NewChatService } from '../_services/newchat.service';
 
+import { User } from '../_models/user'
+
 @Component({
   selector: 'app-newchat',
   templateUrl: './newchat.component.html',
@@ -14,9 +16,10 @@ export class NewchatComponent implements OnInit {
   msg;
   question;
 
+  private user: User;
 
-
-  constructor(private _chatService : NewChatService) { }
+  constructor(private _chatService : NewChatService) {
+  }
 
 
   ngOnInit() {
@@ -26,10 +29,12 @@ export class NewchatComponent implements OnInit {
             this.messages.push(msg);
             console.log();
           });
+          
+          this.user = JSON.parse(localStorage.getItem('currentUser')) as User;
     }
 
     sendMsg(){
-       this._chatService.sendMessage({from: 'Peti', text: this.msg});
+       this._chatService.sendMessage({from: this.user.username, text: this.msg});
        this.msg = '';
     }
 
