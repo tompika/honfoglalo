@@ -15,7 +15,7 @@ import { AuthGuard } from './_guards/index';
 const MAINMENU_ROUTES: Routes = [
 
     { path: '', component: HomeComponent, canActivate: [AuthGuard] },
-    { path: 'home', component: HomeComponent , canActivate: [AuthGuard] },
+    { path: 'home', component: HomeComponent /*, canActivate: [AuthGuard]*/ },
     { path: 'game', component: GameComponent/* , canActivate: [AuthGuard]*/ },
 
     { path: 'login', component: LoginComponent },

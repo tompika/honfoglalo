@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 
 import { Router } from '@angular/router';
-import { ChatService } from '../_services/chat.service';
 import * as io from 'socket.io-client';
 
 @Component({
@@ -19,8 +18,7 @@ export class ChatComponent {
     private socket;
 
   constructor(
-    private _router: Router,
-    private _chatService: ChatService) {
+    private _router: Router) {
     }
 
   /*ngOnInit() {
@@ -43,7 +41,7 @@ export class ChatComponent {
 
 
   sendMessage(){
-      this._chatService.sendMessage(this.message);
+      //this._chatService.sendMessage(this.message);
       this.message = '';
     }
 

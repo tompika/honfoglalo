@@ -17,7 +17,7 @@ export class AuthenticationService {
         return this.http.post('http://localhost:8090/SpringBootBasic/authenticate', JSON.stringify({ username : username, password: password }), options)
             .map((response: Response) => {
 
-                console.log(response);
+                console.log("Authentication response:" + response);
                 let user = response.json();
                 if (user/* && user.token*/) {
                     // store user details and jwt token in local storage to keep user logged in between page refreshes

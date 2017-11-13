@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 
 import { User } from '../_models/user';
 import { UserService } from '../_services/user.service';
+import { NewChatService } from '../_services/newchat.service';
 
 @Component({
   selector: 'app-home',
@@ -10,22 +11,33 @@ import { UserService } from '../_services/user.service';
 })
 export class HomeComponent implements OnInit {
   currentUser: User;
-  users: User[] = [];
 
-  constructor(private userService: UserService) {
+  readyUserCount;
+
+
+  constructor(private userService: UserService,
+              private _chatService: NewChatService) {
     this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
     console.log("JELENLEGI USER"  + this.currentUser);
   }
 
   ngOnInit() {
-    this.loadAllUsers();
+
+    this._chatService
+      .getReadyCount()
+      .subscribe(result => {
+        this.readyUserCount = result;
+        console.log("Varkozo jatekosok: " + result);
+      });
+
+
   }
 
-  deleteUser(_id: string) {
-    this.userService.delete(_id).subscribe(() => { this.loadAllUsers() });
+  gameReady(){
+    console.log("READY CLICK");
+    this._chatService.sendReady();
+
   }
 
-  private loadAllUsers() {
-    //this.userService.getAll().subscribe(users => { this.users = users; });
-  }
+
 }

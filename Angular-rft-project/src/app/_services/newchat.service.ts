@@ -4,31 +4,53 @@ import { Socket } from 'ng-socket-io';
 @Injectable()
 export class NewChatService {
 
-    constructor(private socket: Socket) {
+  constructor(private socket: Socket) {
     console.log("NEW CHAT SERVICE CONST");
-   }
+  }
 
-    sendMessage(msg){
-        this.socket.emit("add-message", msg);
-    }
+  sendMessage(msg) {
+    this.socket.emit("add-message", msg);
+  }
 
-    sendAnswer(answer){
-      this.socket.emit("send-answer",{from:'peti', btn_id: answer });
-    }
+  sendAnswer(answer) {
+    this.socket.emit("answer", { from: localStorage.getItem('currentUser'), btn_id: answer });
+  }
 
-    getMessage() {
-        return this.socket
-            .fromEvent<any>("message")
-            .map( data => data );
-    }
+  sendReady(){
+    this.socket.emit("ready", {});
+  }
 
-    getQuestion(){
-      return this.socket
-          .fromEvent<any>("question")
-          .map( data => data );
-    }
+  getMatchResult() {
+    return this.socket
+      .fromEvent<any>("matchResult")
+      .map(data => data);
+  }
 
-    close() {
-     this.socket.disconnect()
-   }
+  getReadyCount(){
+    return this.socket
+      .fromEvent<any>("readyCount")
+      .map(data => data);
+  }
+
+  getAnswerResult() {
+    return this.socket
+      .fromEvent<any>("answerResult")
+      .map(data => data);
+  }
+
+  getMessage() {
+    return this.socket
+      .fromEvent<any>("message")
+      .map(data => data);
+  }
+
+  getQuestion() {
+    return this.socket
+      .fromEvent<any>("question")
+      .map(data => data);
+  }
+
+  close() {
+    this.socket.disconnect()
+  }
 }

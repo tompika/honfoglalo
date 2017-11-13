@@ -113,21 +113,18 @@ io.sockets.on('connection', function(socket) {
     io.emit('message', {from: 'SERVER', text: "Lets the game begins!"});
 
 //ha valaki kuldott valaszt
-  socket.on('send-answer', (answer) => {
-    io.emit('question', 'ezitten egy kerdes' + answer.btn_id + "JA ES VARJAL MIG A TOBBI IS AD VALASZT");
+  socket.on('answer', (answer) => {
 
-    console.log(answer.from + "-tol kapott valasz: " + answer.btn_id);
-  });
+    io.emit('answerResult', 'varakozz csira mig a tobbi is valaszol!');
 
 
-  socket.on('get_answer', (answer) => {
+    //KERES KULDES SERVICBOL
     var data = '';
     http.get('http://localhost:8090/SpringBootBasic/api/question/', (resp) => {
-
-
-      // A chunk of data has been recieved.
       resp.on('data', (chunk) => {
         data += chunk;
+        //kuldunk egy kerdest nekik
+        io.emit('question', data);
         console.log("QUESTION: " + data)
       });
 
@@ -135,10 +132,8 @@ io.sockets.on('connection', function(socket) {
       console.log("Error: " + err.message);
     });
 
-    console.log("Kuldott kerdes: " + data);
 
-    io.emit('question', data);
-
+    console.log(answer.from + "-tol kapott valasz: " + answer.btn_id);
   });
 
   socket.on('rdyusers', function() {
@@ -207,17 +202,19 @@ io.sockets.on('connection', function(socket) {
 
   });
 
-  
-  
-  socket.on('ready',function(){
+
+
+  socket.on('ready', function(){
 	 socket.ready = true;
 	 userready[socket] = socket;
 	 console.log('user ready: ' + socket.username);
 	 console.log('ready users: ' + Object.keys(userready).length)
+
+   io.emit("readyCount", Object.keys(userready).length);
   });
-  
+
   socket.on('getNumberOfReadyPlayers', function(){
-	  
+
   });
 
   socket.on('switchRoom', function(newroom) {
