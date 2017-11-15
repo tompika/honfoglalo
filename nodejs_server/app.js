@@ -52,14 +52,11 @@ app.get('/game', function(req, res) {
   res.sendfile(__dirname + '/game.html');
 });
 
-app.get('/getData', function (req, res) {
-	var asd = 5;
-	res.json(asd);
-})
+
 
 // usernames which are currently connected to the chat
 var usernames = {};
-var userready = {};
+var userready = [];
 
 // rooms which are currently available in chat
 var rooms = ['room1'];
@@ -136,16 +133,48 @@ io.sockets.on('connection', function(socket) {
     console.log(answer.from + "-tol kapott valasz: " + answer.btn_id);
   });
 
-  socket.on('rdyusers', function() {
-	  var asd = 5;
-	  return asd;
-	  });
+  socket.on('getrandomquestions',function(){
+	  var data = '';
+	    http.get('http://localhost:8090/SpringBootBasic/api/randomquestions/', (resp) => {
+	      resp.on('data', (chunk) => {
+	        data += chunk;
+          io.emit('getrandomquestions', data);
+	        console.log("getrandomquestions: " + data)
+	      });
+  });
+});
+
+
+  socket.on('checkReadyGame', function(){
+    console.log('ready player number ' + userready.length);
+    if (userready.length >= 2 ) {
+      //TODO meg kell nézni van e már ilyen
+      rooms.push('room2');
+
+      userready.forEach(function(value){
+        value.leave(value.room);
+        value.join('room2');
+        value.emit('updatechat', 'SERVER', 'you have connected to ' + 'room2');
+        value.broadcast.to(value.room).emit('updatechat', 'SERVER', value.username + ' has left this room');
+        value.room = 'room2';
+        value.broadcast.to('room2').emit('updatechat', 'SERVER', value.username + ' has joined this room');
+        value.emit('updaterooms', rooms, 'room2');
+        value.gameReady = true;
+        io.emit("game", true);
+      })
+
+
+
+      console.log(socket.room);
+    }
+  });
+
 
 
   socket.on('add-message', (data) => {
     io.emit('message', data);
 
-    console.log(data.from + ": " + data.text);
+    console.log(data.from + ": " + data.text + " from room: " + socket.room);
 
   });
 
@@ -156,8 +185,10 @@ io.sockets.on('connection', function(socket) {
     console.log("Add User: " + username);
     // store the username in the socket session for this client
     socket.username = username;
-    //player status
+    //player status (lobby ready)
     socket.ready = false;
+    //gameReady
+    socket.gameReady = false;
     // store the room name in the socket session for this client
     socket.room = 'room1';
     // add the client's username to the global list
@@ -174,6 +205,7 @@ io.sockets.on('connection', function(socket) {
   // when the client emits 'sendchat', this listens and executes
   socket.on('sendchat', function(data) {
     // we tell the client to execute 'updatechat' with 2 parameters
+    console.log('sendchat ' + socket.room);
     io.sockets.in(socket.room).emit('updatechat', socket.username, data);
   });
 
@@ -206,16 +238,14 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('ready', function(){
 	 socket.ready = true;
-	 userready[socket] = socket;
+	 userready.push(socket);
 	 console.log('user ready: ' + socket.username);
-	 console.log('ready users: ' + Object.keys(userready).length)
+	 console.log('ready users: ' + userready.length)
 
-   io.emit("readyCount", Object.keys(userready).length);
+   io.emit("readyCount", userready.length);
   });
 
-  socket.on('getNumberOfReadyPlayers', function(){
 
-  });
 
   socket.on('switchRoom', function(newroom) {
     // leave the current room (stored in session)

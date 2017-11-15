@@ -57,6 +57,18 @@ public class RestApiController {
                 return null;
 	}
 	
+	@RequestMapping(value="/randomquestions/" ,method=RequestMethod.GET)
+	public ResponseEntity<List<Question>> getRandomQuestions(){
+		List<Question> q = questionService.getRandomQuestions();
+		logger.info("Getting random questions");
+		
+		for (Question question : q) {
+			logger.info(question);
+		}
+		
+		return new ResponseEntity<List<Question>>(q,HttpStatus.OK);
+	}
+	
 
 
 }

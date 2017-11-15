@@ -53,6 +53,28 @@ export class NewChatService {
       .map(data => data);
   }
 
+  getRandomQuestion() {
+    return this.socket
+      .fromEvent<any>("getrandomquestions")
+      .map(data => data);
+  }
+
+  getsad(){
+      this.socket.emit("getrandomquestions", {});
+  }
+
+  checkGameReady(){
+    this.socket.emit("checkReadyGame",{});
+  }
+
+  game(){
+    return this.socket
+      .fromEvent<any>("game")
+      .map(data => data);
+  }
+
+
+
   close() {
     this.socket.disconnect()
   }

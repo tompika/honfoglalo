@@ -18,6 +18,10 @@ import javax.persistence.Table;
 })
 public class Question implements Serializable{
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	@Id
 	@Column(name = "ID_QUESTION")
 	@SequenceGenerator(name = "QUESTION_SEQ", sequenceName = "QUESTION_SEQ", allocationSize = 1, initialValue = 1000)
@@ -111,6 +115,12 @@ public class Question implements Serializable{
 		} else if (!question.equals(other.question))
 			return false;
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Question [id=" + id + ", question=" + question + ", answer1=" + answer1 + ", answer2=" + answer2
+				+ ", answer3=" + answer3 + ", answer4=" + answer4 + "]";
 	}
 
 

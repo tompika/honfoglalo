@@ -14,6 +14,9 @@ export class GameComponent implements OnInit {
 
   question: Question;
 
+  list: Array<Question> = [];
+
+  listsize;
   answer;
   matchResult;
   answerResult;
@@ -32,7 +35,7 @@ export class GameComponent implements OnInit {
   }
 
   ngOnInit() {
-
+/*
     this._chatService
       .getMatchResult()
       .subscribe(matchResult =>{
@@ -47,12 +50,26 @@ export class GameComponent implements OnInit {
         console.log("Question from nodejs: " + this.question);
       });
 
+
+
       this._chatService
         .getAnswerResult()
         .subscribe(result => {
           this.answerResult = result;
           console.log("answer result from nodejs: " + result);
         });
+        */
+        this._chatService
+          .getRandomQuestion()
+          .subscribe(getrandomquestions => {
+            console.log("eljutott ide");
+            this.list = JSON.parse(getrandomquestions) as Array<Question>;
+
+            console.log("Questions from nodejs: " + this.list);
+          });
+        this.listsize = this.list.length;
+        console.log('test');
+
   }
 
 
@@ -76,5 +93,12 @@ export class GameComponent implements OnInit {
     this._alertService.success("4. gomb kivalasztva!");
     this._chatService.sendAnswer(4);
   }
+  btn5() {
+
+    this._chatService.getsad();
+
+
+    }
+
 
 }
