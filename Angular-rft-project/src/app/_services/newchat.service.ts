@@ -28,11 +28,22 @@ export class NewChatService {
       .fromEvent<any>("matchResult")
       .map(data => data);
   }
-
-  getReadyCount(){
+//itt belerakjuk a readylistbe a playert + lekérjuk a méretét
+  setReadyCount(){
     return this.socket
       .fromEvent<any>("readyCount")
       .map(data => data);
+  }
+
+//itt nem rakjuk bele a playert a readylistbe csak lekérjuk a métetét
+  getReadyCount(){
+    return this.socket
+      .fromEvent<any>("getreadycount")
+      .map(data => data);
+  }
+
+  sendReadyCountRequest(){
+    this.socket.emit('getreadycount',{});
   }
 
   getAnswerResult() {
@@ -65,6 +76,26 @@ export class NewChatService {
 
   checkGameReady(){
     this.socket.emit("checkReadyGame",{});
+  }
+
+  sendResult(stage,answer){
+    this.socket.emit("sendresult",{stage:stage,answer:answer});
+  }
+
+  getResult(){
+    return this.socket
+      .fromEvent<any>("getresult")
+      .map(data => data);
+  }
+
+  sendPreGameRequest(){
+    this.socket.emit("sendpreset",{});
+  }
+
+  getPreGameRequest(){
+    return this.socket
+      .fromEvent<any>("getpreset")
+      .map(data => data);
   }
 
   game(){

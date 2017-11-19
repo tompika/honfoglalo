@@ -29,11 +29,12 @@ export class NewchatComponent implements OnInit {
             this.messages.push(msg);
             console.log();
           });
-          
+
           this.user = JSON.parse(localStorage.getItem('currentUser')) as User;
     }
 
     sendMsg(){
+      console.log('msg from: ' + this.user.username);
        this._chatService.sendMessage({from: this.user.username, text: this.msg});
        this.msg = '';
     }

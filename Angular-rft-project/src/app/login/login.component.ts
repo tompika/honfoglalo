@@ -53,6 +53,7 @@ export class LoginComponent implements OnInit {
         this.alertService.error("Sikertelen belepes!");
         this.loading = false;
       });
+      
 
 
   }

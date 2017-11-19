@@ -108,7 +108,7 @@ io.sockets.on('connection', function(socket) {
   //ha valaki csatlakozik
   console.log('client connected: ', socket.id);
     io.emit('message', {from: 'SERVER', text: "Lets the game begins!"});
-
+/*
 //ha valaki kuldott valaszt
   socket.on('answer', (answer) => {
 
@@ -132,16 +132,12 @@ io.sockets.on('connection', function(socket) {
 
     console.log(answer.from + "-tol kapott valasz: " + answer.btn_id);
   });
+*/
 
   socket.on('getrandomquestions',function(){
-	  var data = '';
-	    http.get('http://localhost:8090/SpringBootBasic/api/randomquestions/', (resp) => {
-	      resp.on('data', (chunk) => {
-	        data += chunk;
-          io.emit('getrandomquestions', data);
-	        console.log("getrandomquestions: " + data)
-	      });
-  });
+          console.log('getrandomquestions: ' + socket.question);
+          io.sockets.in(socket.room).emit('getrandomquestions', socket.question);
+
 });
 
 
@@ -151,29 +147,83 @@ io.sockets.on('connection', function(socket) {
       //TODO meg kell nézni van e már ilyen
       rooms.push('room2');
 
-      userready.forEach(function(value){
-        value.leave(value.room);
-        value.join('room2');
-        value.emit('updatechat', 'SERVER', 'you have connected to ' + 'room2');
-        value.broadcast.to(value.room).emit('updatechat', 'SERVER', value.username + ' has left this room');
-        value.room = 'room2';
-        value.broadcast.to('room2').emit('updatechat', 'SERVER', value.username + ' has joined this room');
-        value.emit('updaterooms', rooms, 'room2');
-        value.gameReady = true;
-        io.emit("game", true);
-      })
-
-
-
+      //questions
+      var data = '';
+      http.get('http://localhost:8090/SpringBootBasic/api/randomquestions/', (resp) => {
+        resp.on('data', (chunk) => {
+          data += chunk;
+          console.log("QUESTIONS: " + data)
+          userready.forEach(function(value){
+            value.question = JSON.parse(data);
+            value.leave(value.room);
+            value.join('room2');
+            value.emit('updatechat', 'SERVER', 'you have connected to ' + 'room2');
+            value.broadcast.to(value.room).emit('updatechat', 'SERVER', value.username + ' has left this room');
+            value.room = 'room2';
+            value.broadcast.to('room2').emit('updatechat', 'SERVER', value.username + ' has joined this room');
+            value.emit('updaterooms', rooms, 'room2');
+            value.gameReady = true;
+            console.log('name: ' + value.username);
+            //console.log('data: ' + value.question);
+            io.sockets.in(socket.room).emit("game", true);
+          });
+        });
+      }).on("error", (err) => {
+        console.log("Error: " + err.message);
+      });
       console.log(socket.room);
     }
   });
 
 
+  socket.on('sendresult',(data) => {
+      console.log('sendresult data: ' + data.answer);
+      socket.result = data.answer;
+      //userready[0].result = data.answer;
+      if (userready[0].result != '' && userready[1].result != ''){
+        console.log('fasza');
+
+        console.log('p1 result: '  + userready[0].result);
+        console.log('p2 result: '  + userready[1].result);
+        console.log('p1 q: '  + userready[0].question[data.stage].question);
+        console.log('p2 q: '  + userready[1].question[data.stage].question);
+
+        if (userready[0].question[data.stage].canswer === userready[0].result) {
+          console.log('trueeeeee');
+          userready[0].score = userready[0].score + 200;
+        }
+        if (userready[1].question[data.stage].canswer === userready[1].result) {
+          userready[1].score = userready[1].score + 200;
+        }
+
+        console.log('p1 score: '  + userready[0].score);
+        console.log('p2 score: '  + userready[1].score);
+        console.log('p1 result: '  + userready[0].result);
+        console.log('p2 result: '  + userready[1].result);
+
+        io.sockets.in(socket.room)
+          .emit("getresult",{s1:userready[0].score,s2:userready[1].score,
+                             p1:userready[0].username,p2:userready[1].username,
+                             r1:userready[0].result,r2:userready[1].result});
+        userready[0].result = '';
+        userready[1].result = '';
+      }
+
+  });
+
+  socket.on('sendpreset',function(){
+    userready[0].result = '';
+    userready[1].result = '';
+    userready[0].score = 0;
+    userready[1].score = 0;
+    io.sockets.in(socket.room)
+      .emit("getpreset",{s1:userready[0].score,s2:userready[1].score,
+                         p1:userready[0].username,p2:userready[1].username,
+                         r1:userready[0].result,r2:userready[1].result});
+  });
 
   socket.on('add-message', (data) => {
-    io.emit('message', data);
-
+    io.sockets.in(socket.room).emit('message', data);
     console.log(data.from + ": " + data.text + " from room: " + socket.room);
 
   });
@@ -189,6 +239,14 @@ io.sockets.on('connection', function(socket) {
     socket.ready = false;
     //gameReady
     socket.gameReady = false;
+    //answer
+    socket.result = '';
+    //question array
+    socket.question = [];
+    //gae score
+    socket.score = 0;
+    //stage
+    socket.stage = 0;
     // store the room name in the socket session for this client
     socket.room = 'room1';
     // add the client's username to the global list
@@ -245,6 +303,9 @@ io.sockets.on('connection', function(socket) {
    io.emit("readyCount", userready.length);
   });
 
+  socket.on('getreadycount', function(){
+    io.emit('getreadycount', userready.length);
+  });
 
 
   socket.on('switchRoom', function(newroom) {
@@ -263,11 +324,12 @@ io.sockets.on('connection', function(socket) {
 
   // when the user disconnects.. perform this
   socket.on('disconnect', function() {
-
-	console.log('disconnect', socket.id);
+	  console.log('disconnect', socket.id);
     // remove the username from global usernames list
     delete usernames[socket.username];
+    userready.pop();
     // update list of users in chat, client-side
+    console.log('size: ' + userready.length);
     io.sockets.emit('updateusers', usernames);
     // echo globally that this client has left
     socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');

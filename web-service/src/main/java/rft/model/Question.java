@@ -37,16 +37,19 @@ public class Question implements Serializable{
 	private String answer3;
 	@Column(name="ANSWER4")
 	private String answer4;
+	@Column(name="CANSWER")
+	private String canswer;
 
 	public Question() {}
 	
-	public Question(String question, String answer1, String answer2, String answer3, String answer4) {
+	public Question(String question, String answer1, String answer2, String answer3, String answer4, String canswer) {
 		super();
 		this.question = question;
 		this.answer1 = answer1;
 		this.answer2 = answer2;
 		this.answer3 = answer3;
 		this.answer4 = answer4;
+		this.canswer = canswer;
 	}
 	
 	
@@ -91,6 +94,14 @@ public class Question implements Serializable{
 	public void setAnswer4(String answer4) {
 		this.answer4 = answer4;
 	}
+	
+	public String getCanswer() {
+		return canswer;
+	}
+
+	public void setCanswer(String canswer) {
+		this.canswer = canswer;
+	}
 
 	@Override
 	public int hashCode() {
@@ -120,8 +131,10 @@ public class Question implements Serializable{
 	@Override
 	public String toString() {
 		return "Question [id=" + id + ", question=" + question + ", answer1=" + answer1 + ", answer2=" + answer2
-				+ ", answer3=" + answer3 + ", answer4=" + answer4 + "]";
+				+ ", answer3=" + answer3 + ", answer4=" + answer4 + ", canswer=" + canswer + "]";
 	}
+
+
 
 
 	
