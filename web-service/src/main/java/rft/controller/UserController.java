@@ -1,5 +1,6 @@
 package rft.controller;
 
+import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,10 +19,13 @@ import org.springframework.web.servlet.ModelAndView;
 
 import rft.model.User;
 import rft.model.UserRole;
+import rft.model.VerificationToken;
+import rft.service.EmailServiceImpl;
 import rft.service.UserServiceImpl;
+import rft.service.VerificationTokenServiceImpl;
 import rft.util.PWEncryptor;
 
-@Controller
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 public class UserController {
 
@@ -30,6 +34,12 @@ public class UserController {
     @Autowired
     UserServiceImpl userService;
     private static PWEncryptor pw = new PWEncryptor();
+    
+    @Autowired
+    EmailServiceImpl emailService;
+    
+    @Autowired
+    VerificationTokenServiceImpl tokenService;
 /*
     @RequestMapping(value = "/registration", method = RequestMethod.GET)
     public String registration(Model model) {
@@ -79,14 +89,14 @@ public class UserController {
         return "login";
     }*/
 
-    @CrossOrigin
+    
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> getAuthentication(@RequestBody User user) {
 
         logger.info("Kapott objektum: " + user);
 
         if (userService.findByName(user.getUsername()) != null) {
-            logger.info("OK");
+            
 
             User temp = userService.findByName(user.getUsername());
 
@@ -99,7 +109,7 @@ public class UserController {
         return new ResponseEntity<String>("Sikertelen belepes!", HttpStatus.NOT_FOUND);
     }
 
-    @CrossOrigin
+   
     @RequestMapping(value = "/registration", method = RequestMethod.POST)
     public ResponseEntity<?> doRegist(@RequestBody User user) {
 
@@ -117,6 +127,24 @@ public class UserController {
         user.setEnabled(true);
         userService.saveUser(user);
 
+        
+        String token = UUID.randomUUID().toString();
+        
+        logger.info("Generalt token: "+ token);
+        
+        VerificationToken verToken = new VerificationToken(user, token);
+        
+        
+        logger.info(verToken);
+        
+        tokenService.save(verToken);
+        
+        emailService.sendMail("rftproject@valami.hu", user.getEmail(), "Regisztráció megerősítés - " + user.getUsername(), 
+                
+                "Üdvözöllek <b>" + user.getFirstname() + " " + user.getLastname()+ "</b>!<br><br>"
+                        + "Kérlek aktiváld magad az alábbi link segítségével: "
+                        + "<a href=\"http://localhost:8090/SpringBootBasic/api/confirm?token=" + token + "\"" + ">Link</a>");
+        
         logger.info(user.getUsername() + " sikeresen mentve!");
 
         return new ResponseEntity<String>(user + " ", HttpStatus.OK);
