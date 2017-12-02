@@ -112,7 +112,7 @@ public class UserController {
             return new ResponseEntity<String>("HIBA TORTENT!", HttpStatus.NOT_FOUND);
         }
 
-        user.getUserRole().add(new UserRole(user, "ROLE_USER"));
+        //user.getUserRole().add(new UserRole(user, "ROLE_USER"));
         user.setPassword(pw.getEncryptedPassword(user.getPassword()));
         user.setEnabled(true);
         userService.saveUser(user);

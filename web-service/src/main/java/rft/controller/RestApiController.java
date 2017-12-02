@@ -4,22 +4,17 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
 
-import rft.dao.UserDao;
 import rft.model.Question;
 import rft.model.User;
 import rft.service.QuestionServiceImpl;
 import rft.service.UserServiceImpl;
-import rft.util.CustomErrorType;
 
 
 
@@ -33,6 +28,8 @@ public class RestApiController {
 	 UserServiceImpl userService;
 	@Autowired
 	 QuestionServiceImpl questionService;
+	
+	User asd =  null;
 	
 	//getQuestion
 	@RequestMapping(value="/test/" ,method=RequestMethod.GET)
@@ -67,6 +64,49 @@ public class RestApiController {
 		}
 		
 		return new ResponseEntity<List<Question>>(q,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/getfriendlist/{username}", method=RequestMethod.GET)
+	public ResponseEntity<List<String>> addFriend(@PathVariable("username") String username){
+		User user = userService.findByName(username);
+		
+		return new ResponseEntity<>(user.getFriendlist(),HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/addfriend/{to},{who}", method=RequestMethod.GET)
+	public ResponseEntity<?> addFriend(@PathVariable("to") String touser, @PathVariable("who") String whouser){
+		User to = userService.findByName(touser);
+		User who = userService.findByName(whouser);
+		
+		logger.info("user: " + to);
+		logger.info("user2: " + who);
+		
+		if (!to.getFriendlist().contains(who.getUsername()) && !who.getFriendlist().contains(to.getUsername())){
+			to.addFriend(who);
+			who.addFriend(to);			
+		}
+
+		userService.updateUser(to);
+		userService.updateUser(who);
+
+		return new ResponseEntity<>(null,HttpStatus.OK);
+	}
+	
+	@RequestMapping(value="/removefriend/{to},{who}", method=RequestMethod.GET)
+	public ResponseEntity<?> removeFriend(@PathVariable("to") String touser, @PathVariable("who") String whouser){
+		User to = userService.findByName(touser);
+		User who = userService.findByName(whouser);
+		
+		if (to.getFriendlist().contains(who.getUsername()) && who.getFriendlist().contains(to.getUsername())) {
+			to.removeFriend(who);
+			who.removeFriend(to);
+		}
+		
+		userService.updateUser(to);
+		userService.updateUser(who);
+		
+		
+		return new ResponseEntity<>(null,HttpStatus.OK);
 	}
 	
 

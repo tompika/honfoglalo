@@ -4,6 +4,7 @@ import { QuestionService, AlertService } from '../_services/index';
 import { NewChatService } from '../_services/newchat.service';
 import { Question } from '../_models/question';
 
+
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
@@ -13,6 +14,7 @@ export class GameComponent implements OnInit {
 
 
   question: Question;
+
 
   list: Array<Question> = [];
 
@@ -25,6 +27,8 @@ export class GameComponent implements OnInit {
 
   allQuestion: Question[];
 
+
+
   connection;
 
   answerClicked: boolean = false;
@@ -34,31 +38,8 @@ export class GameComponent implements OnInit {
               private _chatService: NewChatService,
               private _alertService: AlertService) {
 
-                this._chatService
-                  .getPreGameRequest()
-                  .subscribe(preset =>{
-                    this.matchResult = preset;
-                    console.log("player 1 preset: " + preset.p1 + " result: " + preset.u1 + " score: " + preset.s1);
-                    console.log("player 2 preset: " + preset.p2 + " result: " + preset.u2 + " score: " + preset.s2);
-                  });
-                this._chatService
-                  .getRandomQuestion()
-                  .subscribe(getrandomquestions => {
-                    console.log("eljutott ide");
-                    this.list = getrandomquestions;
-                    if(this.list.length > 0){
-                      console.log('tru');
-                      this.question.answer1 = this.list[this.stage].answer1;
-                      this.question.answer2 = this.list[this.stage].answer2;
-                      this.question.answer3 = this.list[this.stage].answer3;
-                      this.question.answer4 = this.list[this.stage].answer4;
-                      this.question.question = this.list[this.stage].question;
-                      this.question.canswer = this.list[this.stage].canswer;
-                      console.log('1: ' + this.list[this.stage].question);
-                      console.log('2: ' +this.question.question);
-                    }
 
-                  });
+
                 console.log('const');
                 this.question = new Question()
                 this.question.answer1 = '';
@@ -71,12 +52,37 @@ export class GameComponent implements OnInit {
 
 
 
+
   }
 
   ngOnInit() {
 
     console.log('init');
+    this._chatService
+      .getPreGameRequest()
+      .subscribe(preset =>{
+        this.matchResult = preset;
+        console.log("player 1 preset: " + preset.p1 + " result: " + preset.u1 + " score: " + preset.s1);
+        console.log("player 2 preset: " + preset.p2 + " result: " + preset.u2 + " score: " + preset.s2);
+      });
+    this._chatService
+      .getRandomQuestion()
+      .subscribe(getrandomquestions => {
+        console.log("eljutott ide");
+        this.list = getrandomquestions;
+        if(this.list.length > 0){
+          console.log('tru');
+          this.question.answer1 = this.list[this.stage].answer1;
+          this.question.answer2 = this.list[this.stage].answer2;
+          this.question.answer3 = this.list[this.stage].answer3;
+          this.question.answer4 = this.list[this.stage].answer4;
+          this.question.question = this.list[this.stage].question;
+          this.question.canswer = this.list[this.stage].canswer;
+          console.log('1: ' + this.list[this.stage].question);
+          console.log('2: ' +this.question.question);
+        }
 
+      });
 /*
     this._chatService
       .getMatchResult()

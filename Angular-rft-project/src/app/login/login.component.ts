@@ -47,13 +47,14 @@ export class LoginComponent implements OnInit {
         this.alertService.success("Sikeres belepes!");
         this.user = JSON.parse(localStorage.getItem('currentUser'));
         this.chatService.addUser(this.user.username);
+        this.chatService.getFriends(this.user.username);
         this.loading = false;
       },
       error => {
         this.alertService.error("Sikertelen belepes!");
         this.loading = false;
       });
-      
+
 
 
   }

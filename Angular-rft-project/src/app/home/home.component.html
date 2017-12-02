@@ -7,6 +7,30 @@
   <div class="panel-heading">Chat</div>
   <div class="panel-body">
     <h3>VARKOZO JATEKOSOK SZAMA: {{readyUserCount}}</h3></div>
-
 </div>
 <h2><a [routerLink]="['/home']" (click)="gameReady()"> Game ready</a></h2>
+
+<div class="panel panel-default">
+  <div class="panel-heading">Social</div>
+  <div class="panel-body">
+    <label for="invites">Invites:</label>
+    <ul name="invites" >
+    <li *ngFor="let invite of invites" >
+      <p> invite from: </p> {{ invite.who }}  <button (click)="acceptInvite(invite.who)" type="button" class="btn">Accept</button> <button (click)="declineInvite(invite.who)" type="button" class="btn">Decline</button>
+    </li>
+  </ul>
+  </div>
+  <div class="panel-body">
+    <label for="friends">Friends:</label>
+    <ul name="friends" >
+    <li *ngFor="let friend of friends" >
+      {{ friend }} <button (click)="sendInvite(friend)" type="button" class="btn">Invite</button> <button (click)="removeFriend(friend)" type="button" class="btn">Remove</button>
+    </li>
+  </ul>
+  </div>
+  <div class="panel-body">
+    <label for="username">Username:</label>
+    <input type="text" class="form-control" name="username" [(ngModel)]="friendName"  required />
+    <button (click)="addFriend()" type="button" class="btn">Add Friend</button>
+  </div>
+</div>

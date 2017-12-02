@@ -48,7 +48,6 @@ public class UserServiceImpl {
 		return dao.isUserExist(user);
 	}
 	
-
 	
 
 }

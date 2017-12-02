@@ -55,7 +55,7 @@ app.get('/game', function(req, res) {
 
 
 // usernames which are currently connected to the chat
-var usernames = {};
+var usernames = [];
 var userready = [];
 
 // rooms which are currently available in chat
@@ -136,24 +136,66 @@ io.sockets.on('connection', function(socket) {
 
   socket.on('getrandomquestions',function(){
           console.log('getrandomquestions: ' + socket.question);
-          io.sockets.in(socket.room).emit('getrandomquestions', socket.question);
+          socket.emit('getrandomquestions', socket.question);
 
 });
 
 
-  socket.on('checkReadyGame', function(){
-    console.log('ready player number ' + userready.length);
-    if (userready.length >= 2 ) {
-      //TODO meg kell nézni van e már ilyen
-      rooms.push('room2');
+socket.on('getFriendList',function(username){
+    var data = '';
+    http.get('http://localhost:8090/SpringBootBasic/api/getfriendlist/'+username ,(resp) => {
+      resp.on('data', (chunk) => {
+        data += chunk;
+        socket.emit("setFriendList",JSON.parse(data));
+        console.log('friendlist for: ' + username + ' Friendlist: ' + data);
+        });
+    }).on("error", (err) => {
+      console.log("Error: " + err.message);
+    });
+});
+// TODO visszajelzés h sikeres volt e (springben most nullt ad vissza)
+socket.on('friendRequest',function(who,to){
+    console.log('addfriend who: ' + who + 'to: ' + to);
+    http.get('http://localhost:8090/SpringBootBasic/api/addfriend/'+ who + ',' + to);
+});
 
-      //questions
+socket.on('removeFriend',function(who,to){
+    console.log('removefriend who: ' + who + 'to: ' + to);
+    http.get('http://localhost:8090/SpringBootBasic/api/removefriend/'+ who + ',' + to);
+});
+
+
+socket.on('inviteFriend',function(who,to){
+  console.log("inviteFriend: " + who + 'to: ' + to);
+  usernames.forEach(function(value){
+    if (value.username === to) {
+      console.log('invite to: ' + value.username + 'same as: ' + to);
+      value.emit('getInvite',{who:who,to:to});
+    }
+  });
+});
+
+socket.on('inviteResponse',function(response,who){
+    if (response === 'accept') {
+      socket.lobby.push(socket);
+      usernames.forEach(function(value){
+        if (value.username === who) {
+          console.log('response who: ' + value.username + 'same as: ' + who);
+          socket.lobby.push(value);
+          value.lobby.push(value);
+          value.lobby.push(socket);
+          //value.emit('getInvite',{who:who,to:to});
+        }
+      });
+
+
+
       var data = '';
       http.get('http://localhost:8090/SpringBootBasic/api/randomquestions/', (resp) => {
         resp.on('data', (chunk) => {
           data += chunk;
           console.log("QUESTIONS: " + data)
-          userready.forEach(function(value){
+          socket.lobby.forEach(function(value){
             value.question = JSON.parse(data);
             value.leave(value.room);
             value.join('room2');
@@ -165,8 +207,65 @@ io.sockets.on('connection', function(socket) {
             value.gameReady = true;
             console.log('name: ' + value.username);
             //console.log('data: ' + value.question);
-            io.sockets.in(socket.room).emit("game", true);
+
           });
+          io.sockets.in(socket.room).emit("game", true);
+        });
+      }).on("error", (err) => {
+        console.log("Error: " + err.message);
+      });
+
+
+
+
+
+
+
+
+
+    }else {
+      //TODO
+    }
+});
+
+  socket.on('checkReadyGame', function(){
+    console.log('ready player number ' + userready.length);
+    if (userready.length >= 2 ) {
+      //TODO meg kell nézni van e már ilyen
+      rooms.push('room2');
+
+      userready[0].lobby.push(userready[0]);
+      userready[0].lobby.push(userready[1]);
+      userready[1].lobby.push(userready[1]);
+      userready[1].lobby.push(userready[0]);
+
+
+
+      //remove first 2 element;
+      userready.splice(0, 2);
+
+
+      //questions
+      var data = '';
+      http.get('http://localhost:8090/SpringBootBasic/api/randomquestions/', (resp) => {
+        resp.on('data', (chunk) => {
+          data += chunk;
+          console.log("QUESTIONS: " + data)
+          socket.lobby.forEach(function(value){
+            value.question = JSON.parse(data);
+            value.leave(value.room);
+            value.join('room2');
+            value.emit('updatechat', 'SERVER', 'you have connected to ' + 'room2');
+            value.broadcast.to(value.room).emit('updatechat', 'SERVER', value.username + ' has left this room');
+            value.room = 'room2';
+            value.broadcast.to('room2').emit('updatechat', 'SERVER', value.username + ' has joined this room');
+            value.emit('updaterooms', rooms, 'room2');
+            value.gameReady = true;
+            console.log('name: ' + value.username);
+            //console.log('data: ' + value.question);
+
+          });
+          io.sockets.in(socket.room).emit("game", true);
         });
       }).on("error", (err) => {
         console.log("Error: " + err.message);
@@ -180,46 +279,49 @@ io.sockets.on('connection', function(socket) {
       console.log('sendresult data: ' + data.answer);
       socket.result = data.answer;
       //userready[0].result = data.answer;
-      if (userready[0].result != '' && userready[1].result != ''){
+      if (socket.lobby[0].result != '' && socket.lobby[1].result != ''){
         console.log('fasza');
 
-        console.log('p1 result: '  + userready[0].result);
-        console.log('p2 result: '  + userready[1].result);
-        console.log('p1 q: '  + userready[0].question[data.stage].question);
-        console.log('p2 q: '  + userready[1].question[data.stage].question);
+        console.log('p1 result: '  + socket.lobby[0].result);
+        console.log('p2 result: '  + socket.lobby[1].result);
+        console.log('p1 q: '  + socket.lobby[0].question[data.stage].question);
+        console.log('p2 q: '  + socket.lobby[1].question[data.stage].question);
 
-        if (userready[0].question[data.stage].canswer === userready[0].result) {
+        if (socket.lobby[0].question[data.stage].canswer === socket.lobby[0].result) {
           console.log('trueeeeee');
-          userready[0].score = userready[0].score + 200;
+          socket.lobby[0].score = socket.lobby[0].score + 200;
         }
-        if (userready[1].question[data.stage].canswer === userready[1].result) {
-          userready[1].score = userready[1].score + 200;
+        if (socket.lobby[1].question[data.stage].canswer === socket.lobby[1].result) {
+          socket.lobby[1].score = socket.lobby[1].score + 200;
         }
 
-        console.log('p1 score: '  + userready[0].score);
-        console.log('p2 score: '  + userready[1].score);
-        console.log('p1 result: '  + userready[0].result);
-        console.log('p2 result: '  + userready[1].result);
-
+        console.log('p1 score: '  + socket.lobby[0].score);
+        console.log('p2 score: '  + socket.lobby[1].score);
+        console.log('p1 result: '  + socket.lobby[0].result);
+        console.log('p2 result: '  + socket.lobby[1].result);
+//TODO csere ciklusokra
         io.sockets.in(socket.room)
-          .emit("getresult",{s1:userready[0].score,s2:userready[1].score,
-                             p1:userready[0].username,p2:userready[1].username,
-                             r1:userready[0].result,r2:userready[1].result});
-        userready[0].result = '';
-        userready[1].result = '';
+          .emit("getresult",{s1:socket.lobby[0].score,s2:socket.lobby[1].score,
+                             p1:socket.lobby[0].username,p2:socket.lobby[1].username,
+                             r1:socket.lobby[0].result,r2:socket.lobby[1].result});
+        socket.lobby[0].result = '';
+        socket.lobby[1].result = '';
       }
 
   });
 
+
+//TODO csere ciklusokra
   socket.on('sendpreset',function(){
-    userready[0].result = '';
-    userready[1].result = '';
-    userready[0].score = 0;
-    userready[1].score = 0;
-    io.sockets.in(socket.room)
-      .emit("getpreset",{s1:userready[0].score,s2:userready[1].score,
-                         p1:userready[0].username,p2:userready[1].username,
-                         r1:userready[0].result,r2:userready[1].result});
+    console.log('preset');
+    socket.lobby[0].result = '';
+    socket.lobby[1].result = '';
+    socket.lobby[0].score = 0;
+    socket.lobby[1].score = 0;
+    socket
+      .emit("getpreset",{s1:socket.lobby[0].score,s2:socket.lobby[1].score,
+                         p1:socket.lobby[0].username,p2:socket.lobby[1].username,
+                         r1:socket.lobby[0].result,r2:socket.lobby[1].result});
   });
 
   socket.on('add-message', (data) => {
@@ -247,10 +349,13 @@ io.sockets.on('connection', function(socket) {
     socket.score = 0;
     //stage
     socket.stage = 0;
+    //lobby for user for private game
+    socket.lobby = [];
     // store the room name in the socket session for this client
     socket.room = 'room1';
     // add the client's username to the global list
-    usernames[username] = username;
+    //usernames[username] = username;
+    usernames.push(socket);
     // send client to room 1
     socket.join('room1');
     // echo to client they've connected
@@ -326,11 +431,22 @@ io.sockets.on('connection', function(socket) {
   socket.on('disconnect', function() {
 	  console.log('disconnect', socket.id);
     // remove the username from global usernames list
-    delete usernames[socket.username];
-    userready.pop();
+    //delete usernames[socket.username];
+
+    var index = usernames.indexOf(socket);
+    if (index > -1) {
+    usernames.splice(index, 1);
+    }
+    console.log('username size: ' + usernames.length);
+    index = userready.indexOf(socket);
+    if (index > -1) {
+    userready.splice(index, 1);
+    }
+    //TODO ez még itt szar (FIXED)
+    //userready.pop();
     // update list of users in chat, client-side
-    console.log('size: ' + userready.length);
-    io.sockets.emit('updateusers', usernames);
+    console.log('userready size: ' + userready.length);
+    //io.sockets.emit('updateusers', usernames);
     // echo globally that this client has left
     socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
     socket.leave(socket.room);

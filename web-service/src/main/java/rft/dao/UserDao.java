@@ -48,7 +48,7 @@ public class UserDao implements UserService {
     public void saveUser(User user) {
         logger.info("create user: " + user.getUsername());
         try {
-            em.persist(user);
+            em.persist(em.merge(user));
             em.flush();
         } catch (Exception e) {
             logger.error("createUser exception message: " + e.getMessage());
@@ -92,5 +92,6 @@ public class UserDao implements UserService {
         return findAllUsers().stream().anyMatch(e -> e.equals(user));
 
     }
+
 
 }

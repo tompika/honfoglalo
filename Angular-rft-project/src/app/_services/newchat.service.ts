@@ -98,13 +98,43 @@ export class NewChatService {
       .map(data => data);
   }
 
+  getFriends(username){
+    this.socket.emit("getFriendList",username);
+  }
+
+  setFriends(){
+    return this.socket
+      .fromEvent<any>("setFriendList")
+      .map(data => data);
+  }
+
   game(){
     return this.socket
       .fromEvent<any>("game")
       .map(data => data);
   }
 
+  sendFriendRequest(who,to){
+    this.socket.emit("friendRequest",who,to);
+  }
 
+  removeFriendRequest(who,to){
+    this.socket.emit("removeFriend",who,to);
+  }
+
+  inviteFriend(who,to){
+    this.socket.emit("inviteFriend",who,to);
+  }
+
+  getInvite(){
+    return this.socket
+      .fromEvent<any>("getInvite")
+      .map(data => data);
+  }
+
+  inviteResponse(response,who){
+    this.socket.emit("inviteResponse",response,who);
+  }
 
   close() {
     this.socket.disconnect()
