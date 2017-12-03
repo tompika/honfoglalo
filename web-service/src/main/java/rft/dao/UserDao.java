@@ -8,9 +8,11 @@ import javax.persistence.PersistenceContext;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import rft.model.User;
 
+@Transactional
 @Repository
 public class UserDao implements UserService {
 

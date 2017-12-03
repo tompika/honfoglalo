@@ -59,20 +59,8 @@ public class TokenController {
 
             tokenService.deleteById(verToken.getId());
 
-            
-            
-            URI yahoo;
-            HttpHeaders httpHeaders = new HttpHeaders();
-            try {
-                yahoo = new URI("http://localhost:4200/home");
-               
-                httpHeaders.setLocation(yahoo);
-            } catch (URISyntaxException ex) {
-                java.util.logging.Logger.getLogger(TokenController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            
-            return new ResponseEntity<>(httpHeaders, HttpStatus.SEE_OTHER);
-            
+             
+            return new ResponseEntity<>("Sikeres megerosites! - " + user.getUsername(), HttpStatus.OK);
             
             
             

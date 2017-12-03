@@ -100,7 +100,7 @@ public class UserController {
 
             User temp = userService.findByName(user.getUsername());
 
-            if (pw.checkPassword(user.getPassword(), temp.getPassword())) {
+            if (pw.checkPassword(user.getPassword(), temp.getPassword()) && user.isEnabled()) {
                 return new ResponseEntity<User>(user, HttpStatus.OK);
             }
         }
@@ -124,7 +124,7 @@ public class UserController {
 
         user.getUserRole().add(new UserRole(user, "ROLE_USER"));
         user.setPassword(pw.getEncryptedPassword(user.getPassword()));
-        user.setEnabled(true);
+        user.setEnabled(false);
         userService.saveUser(user);
 
         
