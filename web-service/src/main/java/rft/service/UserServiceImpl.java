@@ -9,8 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import rft.dao.UserService;
 import rft.model.User;
 
-
-@Transactional
 @Service
 public class UserServiceImpl {
 	
