@@ -5,12 +5,13 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import rft.model.User;
-
+@Transactional
 @Repository
 public class UserDao implements UserService {
 
@@ -49,7 +50,7 @@ public class UserDao implements UserService {
         logger.info("create user: " + user.getUsername());
         try {
             em.persist(em.merge(user));
-            em.flush();
+            
         } catch (Exception e) {
             logger.error("createUser exception message: " + e.getMessage());
             e.printStackTrace();

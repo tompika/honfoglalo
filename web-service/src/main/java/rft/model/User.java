@@ -2,8 +2,10 @@ package rft.model;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -13,25 +15,27 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.OneToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
 
 @Entity
-@Table(name = "USERS", uniqueConstraints={
-		@UniqueConstraint(columnNames="USERNAME"),
-		@UniqueConstraint(columnNames="EMAIL")
+@Table(name = "USERS", uniqueConstraints = {
+    @UniqueConstraint(columnNames = "USERNAME")
+    ,
+		@UniqueConstraint(columnNames = "EMAIL")
 })
 @NamedQueries({
-	@NamedQuery(name="User.findAll", query="Select u from User u"),
-	@NamedQuery(name="User.findByUserName", query="select u from User u where u.username = :username"),
-	@NamedQuery(name="User.findById", query="select u from User u where u.id = :id")
-	
+    @NamedQuery(name = "User.findAll", query = "Select u from User u"),
+	@NamedQuery(name = "User.findByUserName", query = "select u from User u where u.username = :username"),
+	@NamedQuery(name = "User.findById", query = "select u from User u where u.id = :id")
+
 })
 public class User implements Serializable{
 	/**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = 1L;
 
@@ -40,20 +44,20 @@ public class User implements Serializable{
 	@SequenceGenerator(name = "USER_SEQ", sequenceName = "USER_SEQ", allocationSize = 1, initialValue = 1000)
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "USER_SEQ")
     private long id;
-	
+
 	@Column(name = "USERNAME", nullable = false)
 	private String username;
-        
-       
+
+
 	@Column(name = "PASSWORD", nullable = false)
 	private String password;
-	
+
 	@Column(name = "ENABLED")
 	private boolean enabled;
-	
+
 	@Column(name = "FIRST_NAME")
 	private String firstname;
-	
+
 	@Column(name = "LAST_NAME")
 	private String lastname;
 
@@ -63,12 +67,15 @@ public class User implements Serializable{
 	@Column(name = "EMAIL", nullable = false)
 	private String email;
 	
+	@OneToOne(mappedBy = "user", cascade=CascadeType.ALL, orphanRemoval=true ,fetch = FetchType.EAGER)
+	private VerificationToken token;
+
 	@Column(name="FRIENDS")
 	@ElementCollection(targetClass=String.class,fetch=FetchType.EAGER)
-	private List<String> friendlist;
+	private List<String> friendlist = new ArrayList<>();
 
 	public User() {}
-	
+
 	public User(String username, String password, boolean enabled) {
 		super();
 		this.username = username;
@@ -80,10 +87,22 @@ public class User implements Serializable{
 	public void addFriend(User friend) {
 		friendlist.add(friend.getUsername());
 	}
-	
+
 	public void removeFriend(User friend) {
 		friendlist.remove(friend.getUsername());
-		
+
+	}
+
+	public void addToken(VerificationToken token) {
+		token.setUser(this);
+		this.token = token;
+	}
+	
+	public void removeToken() {
+		if (this.token != null) {
+			this.token.setUser(null);
+			this.token = null;
+		}
 	}
 	
 
@@ -104,7 +123,7 @@ public class User implements Serializable{
 		if (getClass() != obj.getClass())
 			return false;
 		User other = (User) obj;
-		
+
 		if (username == null) {
 			if (other.username != null)
 				return false;
@@ -128,8 +147,8 @@ public class User implements Serializable{
 	public void setUsername(String username) {
 		this.username = username;
 	}
-        
-       
+
+
 	public String getPassword() {
 		return password;
 	}
@@ -138,7 +157,7 @@ public class User implements Serializable{
 		this.password = password;
 	}
 
-	
+
 
 	public String getFirstname() {
 		return firstname;
@@ -179,17 +198,25 @@ public class User implements Serializable{
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 	}
-	
+
 	public List<String> getFriendlist() {
 		return friendlist;
 	}
-	
+
 	public void setFriendlist(List<String> friendlist) {
 		this.friendlist = friendlist;
 	}
 
+	
 
 
+	public VerificationToken getToken() {
+		return token;
+	}
+
+	public void setToken(VerificationToken token) {
+		this.token = token;
+	}
 
 	@Override
 	public String toString() {
@@ -197,8 +224,8 @@ public class User implements Serializable{
 				+ ", email=" + email + ", friendlist=" + friendlist + "]";
 	}
 
-	
-	
-	
-	
+
+
+
+
 }

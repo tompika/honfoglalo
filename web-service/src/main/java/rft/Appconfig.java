@@ -80,7 +80,7 @@ public class Appconfig{
         properties.put("hibernate.hbm2ddl.auto", "update");
         properties.put("hibernate_show_sql", "false");
         properties.put("hibernate.connection.useUnicode", "true");
-		properties.put("hibernate.connection.characterEncoding", "utf8");
+	properties.put("hibernate.connection.characterEncoding", "utf8");
         return properties;
     }
 

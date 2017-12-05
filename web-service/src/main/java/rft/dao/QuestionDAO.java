@@ -4,13 +4,14 @@ import java.util.List;
 import java.util.Random;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.transaction.Transactional;
 
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Repository;
 
 import rft.model.Question;
 
-
+@Transactional
 @Repository
 public class QuestionDAO implements QuestionService{
 	private Logger logger = Logger.getLogger(QuestionDAO.class);

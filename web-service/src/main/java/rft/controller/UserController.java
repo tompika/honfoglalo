@@ -1,5 +1,6 @@
 package rft.controller;
 
+import java.util.UUID;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,11 +18,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import rft.model.User;
-import rft.model.UserRole;
+import rft.model.VerificationToken;
+import rft.service.EmailServiceImpl;
 import rft.service.UserServiceImpl;
+import rft.service.VerificationTokenServiceImpl;
 import rft.util.PWEncryptor;
 
-@Controller
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 public class UserController {
 
@@ -30,63 +33,21 @@ public class UserController {
     @Autowired
     UserServiceImpl userService;
     private static PWEncryptor pw = new PWEncryptor();
-/*
-    @RequestMapping(value = "/registration", method = RequestMethod.GET)
-    public String registration(Model model) {
-        logger.info("reg get");
-        model.addAttribute("userForm", new User());
-        return "registration";
-    }
-*/
-    /*
-    @RequestMapping(value = "/registration", method = RequestMethod.POST)
-    public String registration(@ModelAttribute("userForm") User userForm, BindingResult bindingResult, Model model) {
-        //userValidator.validate(userForm, bindingResult);
-    	logger.info("reg post");
-        if (bindingResult.hasErrors()) {
-            return "registration";
-        }
-        userForm.getUserRole().add(new UserRole(userForm,"ROLE_USER"));
-        userForm.setPassword(pw.encode(userForm.getPassword()));
-        userForm.setEnabled(true);
-        userService.saveUser(userForm);
+    
+    @Autowired
+    EmailServiceImpl emailService;
+    
+    @Autowired
+    VerificationTokenServiceImpl tokenService;
 
-        //securityService.autologin(userForm.getUsername(), userForm.getPasswordConfirm());
-
-        return "login";
-    }
-
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
-    public String login(Model model, String error, String logout) {
-    	 Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    	logger.info("login get");
-    	 	if (error != null ) {
-    	 		logger.info("error" + error);
-             model.addAttribute("error", "Your username and password is invalid.");
-    	 	}
-         if (logout != null ) {
-        	 	logger.info("logout" + logout);
-             model.addAttribute("message", "You have been logged out successfully.");
-         }
-         
-
-         if (!(auth instanceof AnonymousAuthenticationToken)) {
-
-             logger.info("redirect to welcome");
-             return "forward:/welcome";
-         }
-         
-        return "login";
-    }*/
-
-    @CrossOrigin
+    
     @RequestMapping(value = "/authenticate", method = RequestMethod.POST)
     public ResponseEntity<?> getAuthentication(@RequestBody User user) {
 
         logger.info("Kapott objektum: " + user);
 
         if (userService.findByName(user.getUsername()) != null) {
-            logger.info("OK");
+            
 
             User temp = userService.findByName(user.getUsername());
 
@@ -99,7 +60,7 @@ public class UserController {
         return new ResponseEntity<String>("Sikertelen belepes!", HttpStatus.NOT_FOUND);
     }
 
-    @CrossOrigin
+    
     @RequestMapping(value = "/registration", method = RequestMethod.POST)
     public ResponseEntity<?> doRegist(@RequestBody User user) {
 
@@ -114,9 +75,29 @@ public class UserController {
 
         //user.getUserRole().add(new UserRole(user, "ROLE_USER"));
         user.setPassword(pw.getEncryptedPassword(user.getPassword()));
-        user.setEnabled(true);
-        userService.saveUser(user);
+        user.setEnabled(false);
+        
 
+        
+        String token = UUID.randomUUID().toString();
+        
+        logger.info("Generalt token: "+ token);
+        
+        VerificationToken verToken = new VerificationToken(token);
+        
+        
+        logger.info(verToken);
+        user.addToken(verToken);
+        userService.saveUser(user);
+        
+        //tokenService.save(verToken);
+        
+        emailService.sendMail("rftproject@valami.hu", user.getEmail(), "Regisztráció megerősítés - " + user.getUsername(), 
+                
+                "Üdvözöllek <b>" + user.getFirstname() + " " + user.getLastname()+ "</b>!<br><br>"
+                        + "Kérlek aktiváld magad az alábbi link segítségével: "
+                        + "<a href=\"http://localhost:8090/SpringBootBasic/api/confirm?token=" + token + "\"" + ">Link</a>");
+        
         logger.info(user.getUsername() + " sikeresen mentve!");
 
         return new ResponseEntity<String>(user + " ", HttpStatus.OK);
