@@ -49,8 +49,11 @@ export class HomeComponent implements OnInit {
     this._chatService
       .setFriends()
       .subscribe(result => {
+        console.log(result);
+        console.log('result lenght: ' + result.length);
         this.friends = result;
-        console.log("friendlist: " + result);
+        console.log("friendlist: " + result + " size: " + this.friends.length);
+
       });
 
       this._chatService
@@ -121,7 +124,9 @@ export class HomeComponent implements OnInit {
 
   declineInvite(who){
       console.log("decline: " + who);
+      this.invites = this.invites.filter(e=>e.who != who);
       this._chatService.inviteResponse("decline",who);
+
   }
 
 

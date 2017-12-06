@@ -46,12 +46,12 @@ public class UserController {
 
         logger.info("Kapott objektum: " + user);
 
-        if (userService.findByName(user.getUsername()) != null) {
-            
+        	
+        User temp = userService.findByName(user.getUsername());
+        
+        if (temp != null) {
 
-            User temp = userService.findByName(user.getUsername());
-
-            if (pw.checkPassword(user.getPassword(), temp.getPassword()) && user.isEnabled()) {
+            if (pw.checkPassword(user.getPassword(), temp.getPassword()) && temp.isEnabled()) {
                 return new ResponseEntity<User>(user, HttpStatus.OK);
             }
         }

@@ -14,6 +14,7 @@ var server = require('http').createServer(app).listen(process.env.PORT || 8080);
 // Create a Socket.IO server and attach it to the http server
 var io = require('socket.io').listen(server);
 
+var randomstring = require("randomstring");
 
 //http kereshez
 const http = require('http');
@@ -98,6 +99,17 @@ process.on('uncaughtException', exitHandler.bind(null, {
 }));
 
 
+function createRoom(){
+var roomid = randomstring.generate(7);
+var index = rooms.indexOf(roomid);
+  if (index != -1) {
+    createRoom();
+  }else{
+    console.log('roomid: ' + roomid);
+    return roomid;
+  }
+}
+
 //----------------------------
 
 // Reduce the logging output of Socket.IO
@@ -156,12 +168,69 @@ socket.on('getFriendList',function(username){
 // TODO visszajelzés h sikeres volt e (springben most nullt ad vissza)
 socket.on('friendRequest',function(who,to){
     console.log('addfriend who: ' + who + 'to: ' + to);
-    http.get('http://localhost:8090/SpringBootBasic/api/addfriend/'+ who + ',' + to);
+    var data = '';
+    var data2 = [];
+    var toarray = [];
+    var whoarray = [];
+    http.get('http://localhost:8090/SpringBootBasic/api/addfriend/'+ who + ',' + to,(resp) => {
+      resp.on('data', (chunk) => {
+        data += chunk;
+        data2 = data.split('&&');
+        whoarray = data2[0].split(',');
+        toarray = data2[1].split(',');
+
+        usernames.forEach(function(value){
+          if (value.username === to) {
+            value.emit('setFriendList',toarray);
+          }
+          if (value.username === who) {
+            value.emit('setFriendList',whoarray);
+          }
+        });
+
+        });
+    }).on("error", (err) => {
+      console.log("Error: " + err.message);
+    });
 });
 
 socket.on('removeFriend',function(who,to){
-    console.log('removefriend who: ' + who + 'to: ' + to);
-    http.get('http://localhost:8090/SpringBootBasic/api/removefriend/'+ who + ',' + to);
+  console.log('removefriend who: ' + who + 'to: ' + to);
+  var data = '';
+  var data2 = [];
+  var toarray = [];
+  var whoarray = [];
+  http.get('http://localhost:8090/SpringBootBasic/api/removefriend/'+ who + ',' + to,(resp) => {
+    resp.on('data', (chunk) => {
+      data += chunk;
+      data2 = data.split('&&');
+      whoarray = data2[0].split(',');
+      toarray = data2[1].split(',');
+
+      if (whoarray.length == 1 && whoarray[0] === '') {
+        whoarray.splice(0,1);
+      }
+
+      if (toarray.length == 1 && toarray[0] === '') {
+        toarray.splice(0,1);
+      }
+
+      console.log(whoarray);
+      console.log(toarray);
+
+      usernames.forEach(function(value){
+        if (value.username === to) {
+          value.emit('setFriendList',toarray);
+        }
+        if (value.username === who) {
+          value.emit('setFriendList',whoarray);
+        }
+      });
+
+      });
+  }).on("error", (err) => {
+    console.log("Error: " + err.message);
+  });
 });
 
 
@@ -174,7 +243,6 @@ socket.on('inviteFriend',function(who,to){
     }
   });
 });
-
 socket.on('inviteResponse',function(response,who){
     if (response === 'accept') {
       socket.lobby.push(socket);
@@ -187,23 +255,21 @@ socket.on('inviteResponse',function(response,who){
           //value.emit('getInvite',{who:who,to:to});
         }
       });
-
-
-
       var data = '';
       http.get('http://localhost:8090/SpringBootBasic/api/randomquestions/', (resp) => {
         resp.on('data', (chunk) => {
           data += chunk;
           console.log("QUESTIONS: " + data)
+          var room = createRoom();
           socket.lobby.forEach(function(value){
             value.question = JSON.parse(data);
             value.leave(value.room);
-            value.join('room2');
-            value.emit('updatechat', 'SERVER', 'you have connected to ' + 'room2');
+            value.join(room);
+            value.emit('updatechat', 'SERVER', 'you have connected to ' + room);
             value.broadcast.to(value.room).emit('updatechat', 'SERVER', value.username + ' has left this room');
-            value.room = 'room2';
-            value.broadcast.to('room2').emit('updatechat', 'SERVER', value.username + ' has joined this room');
-            value.emit('updaterooms', rooms, 'room2');
+            value.room = room;
+            value.broadcast.to(room).emit('updatechat', 'SERVER', value.username + ' has joined this room');
+            value.emit('updaterooms', rooms, room);
             value.gameReady = true;
             console.log('name: ' + value.username);
             //console.log('data: ' + value.question);
@@ -215,14 +281,6 @@ socket.on('inviteResponse',function(response,who){
         console.log("Error: " + err.message);
       });
 
-
-
-
-
-
-
-
-
     }else {
       //TODO
     }
@@ -232,7 +290,8 @@ socket.on('inviteResponse',function(response,who){
     console.log('ready player number ' + userready.length);
     if (userready.length >= 2 ) {
       //TODO meg kell nézni van e már ilyen
-      rooms.push('room2');
+      var room = createRoom();
+      rooms.push(room);
 
       userready[0].lobby.push(userready[0]);
       userready[0].lobby.push(userready[1]);
@@ -254,17 +313,18 @@ socket.on('inviteResponse',function(response,who){
           socket.lobby.forEach(function(value){
             value.question = JSON.parse(data);
             value.leave(value.room);
-            value.join('room2');
-            value.emit('updatechat', 'SERVER', 'you have connected to ' + 'room2');
+            value.join(room);
+            value.emit('updatechat', 'SERVER', 'you have connected to ' + room);
             value.broadcast.to(value.room).emit('updatechat', 'SERVER', value.username + ' has left this room');
-            value.room = 'room2';
-            value.broadcast.to('room2').emit('updatechat', 'SERVER', value.username + ' has joined this room');
-            value.emit('updaterooms', rooms, 'room2');
+            value.room = room;
+            value.broadcast.to(room).emit('updatechat', 'SERVER', value.username + ' has joined this room');
+            value.emit('updaterooms', rooms, room);
             value.gameReady = true;
             console.log('name: ' + value.username);
             //console.log('data: ' + value.question);
 
           });
+          io.sockets.in('room1').emit('getreadycount', userready.length);
           io.sockets.in(socket.room).emit("game", true);
         });
       }).on("error", (err) => {

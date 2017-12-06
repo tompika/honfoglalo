@@ -1,5 +1,6 @@
 package rft.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -76,7 +77,8 @@ public class RestApiController {
 	}
 
 	@RequestMapping(value="/addfriend/{to},{who}", method=RequestMethod.GET)
-	public ResponseEntity<?> addFriend(@PathVariable("to") String touser, @PathVariable("who") String whouser){
+	public ResponseEntity<String> addFriend(@PathVariable("to") String touser, @PathVariable("who") String whouser){
+		StringBuilder sb = new StringBuilder();
 		User to = userService.findByName(touser);
 		User who = userService.findByName(whouser);
 
@@ -88,14 +90,34 @@ public class RestApiController {
 			who.addFriend(to);
 		}
 
-		userService.updateUser(to);
-		userService.updateUser(who);
+		to = userService.updateUser(to);
+		who = userService.updateUser(who);
+		
 
-		return new ResponseEntity<>(null,HttpStatus.OK);
+		for (int i = 0; i<to.getFriendlist().size(); i++) {
+			if (i==to.getFriendlist().size()-1) {
+				sb.append(to.getFriendlist().get(i));
+			}else {
+				sb.append(to.getFriendlist().get(i) + ",");
+			}
+			
+		}
+		sb.append("&&");
+		for (int i = 0; i<who.getFriendlist().size(); i++) {
+			if (i==who.getFriendlist().size()-1) {
+				sb.append(who.getFriendlist().get(i));
+			}else {
+				sb.append(who.getFriendlist().get(i) + ",");
+			}
+			
+		}
+
+		return new ResponseEntity<>(sb.toString(),HttpStatus.OK);
 	}
 
 	@RequestMapping(value="/removefriend/{to},{who}", method=RequestMethod.GET)
-	public ResponseEntity<?> removeFriend(@PathVariable("to") String touser, @PathVariable("who") String whouser){
+	public ResponseEntity<String> removeFriend(@PathVariable("to") String touser, @PathVariable("who") String whouser){
+		StringBuilder sb = new StringBuilder();
 		User to = userService.findByName(touser);
 		User who = userService.findByName(whouser);
 
@@ -104,11 +126,29 @@ public class RestApiController {
 			who.removeFriend(to);
 		}
 
-		userService.updateUser(to);
-		userService.updateUser(who);
+		to = userService.updateUser(to);
+		who = userService.updateUser(who);
 
 
-		return new ResponseEntity<>(null,HttpStatus.OK);
+		for (int i = 0; i<to.getFriendlist().size(); i++) {
+			if (i==to.getFriendlist().size()-1) {
+				sb.append(to.getFriendlist().get(i));
+			}else {
+				sb.append(to.getFriendlist().get(i) + ",");
+			}
+			
+		}
+		sb.append("&&");
+		for (int i = 0; i<who.getFriendlist().size(); i++) {
+			if (i==who.getFriendlist().size()-1) {
+				sb.append(who.getFriendlist().get(i));
+			}else {
+				sb.append(who.getFriendlist().get(i) + ",");
+			}
+			
+		}
+		
+		return new ResponseEntity<>(sb.toString(),HttpStatus.OK);
 	}
 
 
