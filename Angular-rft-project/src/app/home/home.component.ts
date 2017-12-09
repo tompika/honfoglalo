@@ -6,6 +6,7 @@ import { NewChatService } from '../_services/newchat.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import {Observable} from 'rxjs/Rx';
 import { Invite } from '../_models/invite';
+import { AlertService } from '../_services/alert.service';
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -19,9 +20,11 @@ export class HomeComponent implements OnInit {
   game = false;
   invite: Invite;
   invites: Array<Invite> = [];
-
+  readyClicked: boolean = false;
+  notReadyClicked: boolean = false;
   constructor(private userService: UserService,
               private _chatService: NewChatService,
+              private alertService: AlertService,
               private router: Router) {
               this._chatService.sendReadyCountRequest();
 
@@ -35,6 +38,8 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log('oninit');
+
     this._chatService
       .getInvite()
       .subscribe(invite =>{
@@ -71,6 +76,12 @@ export class HomeComponent implements OnInit {
             console.log("Varkozo jatekosok: " + result);
           });
 
+          this._chatService
+            .friendRequestError()
+            .subscribe(result => {
+              console.log('fos');
+              this.alertService.error("Nincs ilyen user");
+            });
 
           this._chatService
             .game()
@@ -83,10 +94,12 @@ export class HomeComponent implements OnInit {
                 this.router.navigate(['/game']);
               }
             });
-
+//TODO logout
   }
 
   gameReady(){
+    this.readyClicked = true;
+    this.notReadyClicked = false;
     console.log("READY CLICK");
     //console.log('user before: ' + JSON.parse(localStorage.getItem('currentUser')).username);
     this._chatService.sendReady();
@@ -100,6 +113,12 @@ export class HomeComponent implements OnInit {
 
     console.log('user after: ' + JSON.parse(localStorage.getItem('currentUser')).username);
 
+  }
+
+  notReady(){
+    this.readyClicked = false;
+    this.notReadyClicked = true;
+    this._chatService.notReady();
   }
 
   addFriend(){

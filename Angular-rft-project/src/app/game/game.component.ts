@@ -1,9 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-
+import { Router, ActivatedRoute } from '@angular/router';
 import { QuestionService, AlertService } from '../_services/index';
 import { NewChatService } from '../_services/newchat.service';
 import { Question } from '../_models/question';
-
+import { User } from '../_models/user';
 
 @Component({
   selector: 'app-game',
@@ -14,11 +14,11 @@ export class GameComponent implements OnInit {
 
 
   question: Question;
-
+  currentUser: User;
 
   list: Array<Question> = [];
 
-  stage = 0;
+  stage: number = 0;
 
   listsize;
   answer;
@@ -36,8 +36,10 @@ export class GameComponent implements OnInit {
 
   constructor(private _questionService: QuestionService,
               private _chatService: NewChatService,
+              private router: Router,
               private _alertService: AlertService) {
-
+                this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+                console.log("Jelenlegi felhasznalo: "  + this.currentUser.username);
 
 
                 console.log('const');
@@ -56,7 +58,8 @@ export class GameComponent implements OnInit {
   }
 
   ngOnInit() {
-
+    this.stage = 0;
+    console.log('stage: '+this.stage);
     console.log('init');
     this._chatService
       .getPreGameRequest()
@@ -65,6 +68,15 @@ export class GameComponent implements OnInit {
         console.log("player 1 preset: " + preset.p1 + " result: " + preset.u1 + " score: " + preset.s1);
         console.log("player 2 preset: " + preset.p2 + " result: " + preset.u2 + " score: " + preset.s2);
       });
+      this._chatService
+        .getResult()
+        .subscribe(Result =>{
+          console.log('chatservice')
+          this.matchResult = Result;
+          this.getNextQuestion();
+          console.log("player 1: " + Result.p1 + " result: " + Result.r1 + " score: " + Result.s1);
+          console.log("player 2: " + Result.p2 + " result: " + Result.r2 + " score: " + Result.s2);
+        });
     this._chatService
       .getRandomQuestion()
       .subscribe(getrandomquestions => {
@@ -72,16 +84,16 @@ export class GameComponent implements OnInit {
         this.list = getrandomquestions;
         if(this.list.length > 0){
           console.log('tru');
-          this.question.answer1 = this.list[this.stage].answer1;
-          this.question.answer2 = this.list[this.stage].answer2;
-          this.question.answer3 = this.list[this.stage].answer3;
-          this.question.answer4 = this.list[this.stage].answer4;
-          this.question.question = this.list[this.stage].question;
-          this.question.canswer = this.list[this.stage].canswer;
-          console.log('1: ' + this.list[this.stage].question);
+          this.question.answer1 = this.list[0].answer1;
+          this.question.answer2 = this.list[0].answer2;
+          this.question.answer3 = this.list[0].answer3;
+          this.question.answer4 = this.list[0].answer4;
+          this.question.question = this.list[0].question;
+          this.question.canswer = this.list[0].canswer;
+          console.log('1: ' + this.list[0].question);
           console.log('2: ' +this.question.question);
         }
-
+        this.stage = 0;
       });
 /*
     this._chatService
@@ -114,6 +126,7 @@ export class GameComponent implements OnInit {
   }
 
   getNextQuestion(){
+    console.log('getNextQuestion: '+this.stage);
     if(this.stage < 4){
       console.log('stage before: ' + this.stage);
       this.stage = this.stage + 1;
@@ -125,6 +138,10 @@ export class GameComponent implements OnInit {
       this.question.answer4 = this.list[this.stage].answer4;
       this.question.question = this.list[this.stage].question;
     }else{
+      console.log('else ág' + this.stage);
+      this._chatService.endGame();
+      this._chatService.getFriends(this.currentUser.username);
+      this.router.navigate(['/home']);
       console.log('VÉGE!');
     }
   }
@@ -132,55 +149,27 @@ export class GameComponent implements OnInit {
     //this.answerClicked = true;
     console.log("1. gomb kivalasztva!");
     this._chatService.sendResult(this.stage,'1');
-    this._chatService
-      .getResult()
-      .subscribe(Result =>{
-        this.matchResult = Result;
-        this.getNextQuestion();
-        console.log("player 1: " + Result.p1 + " result: " + Result.r1 + " score: " + Result.s1);
-        console.log("player 2: " + Result.p2 + " result: " + Result.r2 + " score: " + Result.s2);
-      });
+
   }
 
   btn2() {
     //this.answerClicked = true;
     console.log("2. gomb kivalasztva!");
     this._chatService.sendResult(this.stage,'2');
-    this._chatService
-      .getResult()
-      .subscribe(Result =>{
-        this.matchResult = Result;
-        this.getNextQuestion();
-        console.log("player 1: " + Result.p1 + " result: " + Result.r1 + " score: " + Result.s1);
-        console.log("player 2: " + Result.p2 + " result: " + Result.r2 + " score: " + Result.s2);
-      });
+
   }
   btn3() {
     //this.answerClicked = true
     console.log("3. gomb kivalasztva!");
-    this._chatService.sendResult(this.stage,'2');
-    this._chatService
-      .getResult()
-      .subscribe(Result =>{
-        this.matchResult = Result;
-        this.getNextQuestion();
-        console.log("player 1: " + Result.p1 + " result: " + Result.r1 + " score: " + Result.s1);
-        console.log("player 2: " + Result.p2 + " result: " + Result.r2 + " score: " + Result.s2);
-      });
+    this._chatService.sendResult(this.stage,'3');
+
   }
 
   btn4() {
     //this.answerClicked = true
     console.log("4. gomb kivalasztva!");
-    this._chatService.sendResult(this.stage,'2s');
-    this._chatService
-      .getResult()
-      .subscribe(Result =>{
-        this.matchResult = Result;
-        this.getNextQuestion();
-        console.log("player 1: " + Result.p1 + " result: " + Result.r1 + " score: " + Result.s1);
-        console.log("player 2: " + Result.p2 + " result: " + Result.r2 + " score: " + Result.s2);
-      });
+    this._chatService.sendResult(this.stage,'4');
+
   }
 
 

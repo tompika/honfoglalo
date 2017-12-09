@@ -161,6 +161,7 @@ socket.on('getFriendList',function(username){
         socket.emit("setFriendList",JSON.parse(data));
         console.log('friendlist for: ' + username + ' Friendlist: ' + data);
         });
+
     }).on("error", (err) => {
       console.log("Error: " + err.message);
     });
@@ -175,18 +176,26 @@ socket.on('friendRequest',function(who,to){
     http.get('http://localhost:8090/SpringBootBasic/api/addfriend/'+ who + ',' + to,(resp) => {
       resp.on('data', (chunk) => {
         data += chunk;
-        data2 = data.split('&&');
-        whoarray = data2[0].split(',');
-        toarray = data2[1].split(',');
 
-        usernames.forEach(function(value){
-          if (value.username === to) {
-            value.emit('setFriendList',toarray);
-          }
-          if (value.username === who) {
-            value.emit('setFriendList',whoarray);
-          }
-        });
+        if (data != "HIBA") {
+          data2 = data.split('&&');
+          whoarray = data2[0].split(',');
+          toarray = data2[1].split(',');
+
+          usernames.forEach(function(value){
+            if (value.username === to) {
+              value.emit('setFriendList',toarray);
+            }
+            if (value.username === who) {
+              value.emit('setFriendList',whoarray);
+            }
+          });
+        }else {
+          socket.emit('addFriendError');
+          console.log('fos');
+        }
+
+
 
         });
     }).on("error", (err) => {
@@ -246,9 +255,17 @@ socket.on('inviteFriend',function(who,to){
 socket.on('inviteResponse',function(response,who){
     if (response === 'accept') {
       socket.lobby.push(socket);
+      var index = userready.indexOf(socket);
+      if (index > -1) {
+        userready.splice(index, 1);
+      }
       usernames.forEach(function(value){
         if (value.username === who) {
           console.log('response who: ' + value.username + 'same as: ' + who);
+          index = userready.indexOf(value);
+          if (index > -1) {
+            userready.splice(index, 1);
+          }
           socket.lobby.push(value);
           value.lobby.push(value);
           value.lobby.push(socket);
@@ -275,16 +292,19 @@ socket.on('inviteResponse',function(response,who){
             //console.log('data: ' + value.question);
 
           });
-          io.sockets.in(socket.room).emit("game", true);
+
         });
       }).on("error", (err) => {
         console.log("Error: " + err.message);
       });
+      io.sockets.in(socket.room).emit("game", true);
 
     }else {
       //TODO
     }
 });
+
+
 
   socket.on('checkReadyGame', function(){
     console.log('ready player number ' + userready.length);
@@ -360,8 +380,7 @@ socket.on('inviteResponse',function(response,who){
         console.log('p1 result: '  + socket.lobby[0].result);
         console.log('p2 result: '  + socket.lobby[1].result);
 //TODO csere ciklusokra
-        io.sockets.in(socket.room)
-          .emit("getresult",{s1:socket.lobby[0].score,s2:socket.lobby[1].score,
+        io.sockets.in(socket.room).emit("getresult",{s1:socket.lobby[0].score,s2:socket.lobby[1].score,
                              p1:socket.lobby[0].username,p2:socket.lobby[1].username,
                              r1:socket.lobby[0].result,r2:socket.lobby[1].result});
         socket.lobby[0].result = '';
@@ -432,28 +451,29 @@ socket.on('inviteResponse',function(response,who){
     io.sockets.in(socket.room).emit('updatechat', socket.username, data);
   });
 
-  socket.on('newGame', function(username) {
+  socket.on('endgame', function() {
+    console.log('endgame');
+    //rooms
 
-    //printSockets();
+    socket.leave(socket.room);
+    // join new room, received as function parameter
+    socket.join('room1');
+    socket.emit('updatechat', 'SERVER', 'you have connected to ' + 'room1');
+    // sent message to OLD room
+    socket.broadcast.to(socket.room).emit('updatechat', 'SERVER', socket.username + ' has left this room');
+    // update socket session room title
+    socket.room = 'room1';
+    socket.broadcast.to('room1').emit('updatechat', 'SERVER', socket.username + ' has joined this room');
+    socket.emit('updaterooms', rooms, 'room1');
 
-    if (userGameReady[username] == username) {
-      console.log('Mar felvettunk a ready listába csíra!!');
-      return;
-    }
-
-    userGameReady[username] = username;
-
-    console.log("Elmentve a ready listaba: ", username);
-    console.log(userGameReady);
-    console.log(Object.keys(userGameReady).length);
-
-
-    if (Object.keys(userGameReady).length == 3) {
-      console.log("---- MEGLETT A 3 JATEKOS INDUL A MENET! -----");
-
-      io.sockets.in(socket.room).emit('start_new_game', socket.username, data);
-    }
-
+    //socket variables
+    socket.gameReady = false;
+    socket.ready = false;
+    socket.lobby = [];
+    socket.result = '';
+    socket.question = [];
+    socket.score = 0;
+    socket.stage = 0;
 
   });
 
@@ -466,6 +486,16 @@ socket.on('inviteResponse',function(response,who){
 	 console.log('ready users: ' + userready.length)
 
    io.emit("readyCount", userready.length);
+  });
+
+  socket.on('notReady',function(){
+    console.log('notready: ' + socket.username);
+    var index = userready.indexOf(socket);
+    if (index > -1) {
+      userready.splice(index, 1);
+    }
+    socket.ready = false;
+    io.emit('getreadycount', userready.length);
   });
 
   socket.on('getreadycount', function(){
@@ -485,6 +515,19 @@ socket.on('inviteResponse',function(response,who){
     socket.room = newroom;
     socket.broadcast.to(newroom).emit('updatechat', 'SERVER', socket.username + ' has joined this room');
     socket.emit('updaterooms', rooms, newroom);
+  });
+
+
+
+  socket.on('logout',function(){
+    var index = usernames.indexOf(socket);
+    if (index > -1) {
+      usernames.splice(index, 1);
+    }
+    console.log('removeuser: ' + socket.username);
+    console.log('index: ' + usernames.indexOf(socket));
+    socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
+    socket.leave(socket.room);
   });
 
   // when the user disconnects.. perform this

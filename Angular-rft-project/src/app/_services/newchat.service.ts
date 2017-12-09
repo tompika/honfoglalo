@@ -19,6 +19,10 @@ export class NewChatService {
     this.socket.emit("ready", {});
   }
 
+  notReady(){
+    this.socket.emit('notReady',{});
+  }
+
   addUser(username){
     this.socket.emit("adduser", username);
   }
@@ -126,9 +130,23 @@ export class NewChatService {
     this.socket.emit("inviteFriend",who,to);
   }
 
+  logout(){
+    this.socket.emit("logout");
+  }
+
+  endGame(){
+    this.socket.emit("endgame");
+  }
+
   getInvite(){
     return this.socket
       .fromEvent<any>("getInvite")
+      .map(data => data);
+  }
+
+  friendRequestError(){
+    return this.socket
+      .fromEvent<any>("addFriendError")
       .map(data => data);
   }
 

@@ -80,7 +80,16 @@ public class RestApiController {
 	public ResponseEntity<String> addFriend(@PathVariable("to") String touser, @PathVariable("who") String whouser){
 		StringBuilder sb = new StringBuilder();
 		User to = userService.findByName(touser);
-		User who = userService.findByName(whouser);
+		User who = userService.findByName(whouser);	
+		
+		if (who == null) {
+			sb.append("HIBA");
+			return new ResponseEntity<>(sb.toString(),HttpStatus.OK);
+		
+		}
+			
+		
+		
 
 		logger.info("user: " + to);
 		logger.info("user2: " + who);

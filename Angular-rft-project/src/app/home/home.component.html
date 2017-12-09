@@ -8,7 +8,9 @@
   <div class="panel-body">
     <h3>VARKOZO JATEKOSOK SZAMA: {{readyUserCount}}</h3></div>
 </div>
-<h2><a [routerLink]="['/home']" (click)="gameReady()"> Game ready</a></h2>
+
+<button [disabled]="readyClicked" (click)="gameReady()" type="button" class="btn">Game ready</button>
+<button [disabled]="notReadyClicked" (click)="notReady()" type="button" class="btn">Not ready</button>
 
 <div class="panel panel-default">
   <div class="panel-heading">Social</div>
@@ -28,7 +30,9 @@
     </li>
   </ul>
   </div>
+  <div *ngIf="error" class="alert alert-danger">{{error}}</div>
   <div class="panel-body">
+
     <label for="username">Username:</label>
     <input type="text" class="form-control" name="username" [(ngModel)]="friendName"  required />
     <button (click)="addFriend()" type="button" class="btn">Add Friend</button>
