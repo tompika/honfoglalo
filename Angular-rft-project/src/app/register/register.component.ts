@@ -22,13 +22,12 @@ export class RegisterComponent{
     this.userService.create(this.model)
       .subscribe(
       data => {
-        this.alertService.success('Registration successful', true);
-        console.log("SIKERES REG DLYL!");
-        this.alertService.success("Sikeres regisztracio!");
         this.router.navigate(['/login']);
+        this.alertService.success('Registration successful!', true);
       },
       error => {
-        this.alertService.error("Sikertelen registracio!");
+        console.log(error._body);
+        this.alertService.error(error._body);
         this.loading = false;
       });
   }

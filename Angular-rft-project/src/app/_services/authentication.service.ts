@@ -6,7 +6,16 @@ import 'rxjs/add/operator/map'
 
 @Injectable()
 export class AuthenticationService {
-    constructor(private http: Http, private _alertService: AlertService) { }
+
+private isLoggedIn = false;
+
+    constructor(private http: Http, private _alertService: AlertService) {
+
+      if(localStorage.getItem('currentUser') != null){
+         this.isLoggedIn = true;
+   }
+      
+    }
 
     login(username: string, password: string) {
 
@@ -24,7 +33,7 @@ export class AuthenticationService {
                     localStorage.setItem('currentUser', JSON.stringify(user));
                     console.log(localStorage.getItem('currentUser'));
                     this._alertService.success("Sikeres belepes!" + user.username  + " belepve");
-                    //console.log(user.token);
+                    this.isLoggedIn = true;
                 }
 
                 return user;
@@ -32,8 +41,16 @@ export class AuthenticationService {
 
     }
 
+    confirmToken(token: string){
+        return this.http.get('http://localhost:8090/SpringBootBasic/api/confirm?token=' + token).map((response: Response) => response.json());
+    }
+
     logout() {
-        // remove user from local storage to log user out
+        this.isLoggedIn = false;
         localStorage.removeItem('currentUser');
+    }
+
+    getLogged(){
+      return this.isLoggedIn;
     }
 }

@@ -51,7 +51,11 @@ public class UserController {
         
         if (temp != null) {
 
-            if (pw.checkPassword(user.getPassword(), temp.getPassword()) && temp.isEnabled()) {
+            if (pw.checkPassword(user.getPassword(), temp.getPassword())) {
+                
+                if (!temp.isEnabled())
+                    return new ResponseEntity<String>("Aktiválatlan felhasználó!", HttpStatus.BAD_REQUEST);
+                    
                 return new ResponseEntity<User>(user, HttpStatus.OK);
             }
         }
@@ -70,7 +74,7 @@ public class UserController {
 
         if (temp != null) {
 
-            return new ResponseEntity<String>("HIBA TORTENT!", HttpStatus.NOT_FOUND);
+            return new ResponseEntity<String>("Van ilyen felhasználó!", HttpStatus.BAD_REQUEST);
         }
 
         //user.getUserRole().add(new UserRole(user, "ROLE_USER"));
@@ -92,7 +96,7 @@ public class UserController {
         
         //tokenService.save(verToken);
         
-        emailService.sendMail("rftproject@valami.hu", user.getEmail(), "Regisztráció megerősítés - " + user.getUsername(), 
+        emailService.sendMail("rftproject@gameserver.hu", user.getEmail(), "Regisztráció megerősítés - " + user.getUsername(), 
                 
                 "Üdvözöllek <b>" + user.getFirstname() + " " + user.getLastname()+ "</b>!<br><br>"
                         + "Kérlek aktiváld magad az alábbi link segítségével: "
@@ -101,12 +105,6 @@ public class UserController {
         logger.info(user.getUsername() + " sikeresen mentve!");
 
         return new ResponseEntity<String>(user + " ", HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/welcome", method = RequestMethod.GET)
-    public String welcome(Model model) {
-        logger.info("/welcome");
-        return "welcome";
     }
 
     @RequestMapping(value = "/", method = RequestMethod.GET)

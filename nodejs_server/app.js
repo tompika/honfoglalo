@@ -293,6 +293,7 @@ socket.on('inviteResponse',function(response,who){
 
           });
 
+			io.sockets.in(socket.room).emit("game", true);
         });
       }).on("error", (err) => {
         console.log("Error: " + err.message);
