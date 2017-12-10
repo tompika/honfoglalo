@@ -101,15 +101,9 @@ export class HomeComponent implements OnInit {
     this.readyClicked = true;
     this.notReadyClicked = false;
     console.log("READY CLICK");
-    //console.log('user before: ' + JSON.parse(localStorage.getItem('currentUser')).username);
+
     this._chatService.sendReady();
-
-    //console.log('user before: ' + JSON.parse(localStorage.getItem('currentUser')).username);
     this._chatService.checkGameReady();
-    //console.log('user before: ' + JSON.parse(localStorage.getItem('currentUser')).username);
-
-
-    //console.log('user before: ' + JSON.parse(localStorage.getItem('currentUser')).username);
 
     console.log('user after: ' + JSON.parse(localStorage.getItem('currentUser')).username);
 
@@ -124,6 +118,7 @@ export class HomeComponent implements OnInit {
   addFriend(){
     console.log('friendname: ' + this.friendName);
     this._chatService.sendFriendRequest(this.currentUser.username,this.friendName);
+    this.friendName = "";
   }
 
   sendInvite(name){

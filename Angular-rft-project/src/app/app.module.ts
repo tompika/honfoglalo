@@ -17,13 +17,13 @@ import { AlertComponent } from './alert/alert.component';
 import { AlertService, AuthenticationService, UserService, QuestionService } from './_services/index';
 import { AuthGuard } from './_guards/index';
 import { RegisterComponent } from './register/register.component';
-import { ChatregComponent } from './chatreg/chatreg.component';
 import { ChatComponent } from './chat/chat.component';
 import { MapComponent } from './map/map.component';
 
 import { SocketIoModule, SocketIoConfig } from 'ng-socket-io';
 import { NewchatComponent } from './newchat/newchat.component';
 import { NewChatService } from './_services/newchat.service';
+
 
 const config: SocketIoConfig = { url: 'http://localhost:8080', options: {} };
 
@@ -40,7 +40,6 @@ const config: SocketIoConfig = { url: 'http://localhost:8080', options: {} };
     LoginComponent,
     AlertComponent,
     RegisterComponent,
-    ChatregComponent,
     ChatComponent,
     NewchatComponent,
     MapComponent

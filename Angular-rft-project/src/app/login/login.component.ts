@@ -51,7 +51,7 @@ export class LoginComponent implements OnInit {
         this.loading = false;
       },
       error => {
-        this.alertService.error("Sikertelen belepes!");
+        this.alertService.error(error._body);
         this.loading = false;
       });
 

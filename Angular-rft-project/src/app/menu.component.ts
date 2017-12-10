@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NewChatService } from './_services/newchat.service';
+import { AuthenticationService } from './_services/index';
 
 @Component({
   selector: 'app-menu',
@@ -10,15 +11,14 @@ export class MenuComponent implements OnInit {
 
   private inGame: false;
 
-  constructor(private _chatService: NewChatService) { }
+  constructor(private _chatService: NewChatService,
+              private AuthenticationService: AuthenticationService) { }
 
   ngOnInit() {
   }
 
   logout(){
-    if(localStorage.getItem('currentUser') != undefined)
-      this._chatService.logout();
-      localStorage.removeItem('currentUser');
+    this.AuthenticationService.logout();
   }
 
 }

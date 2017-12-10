@@ -1,7 +1,7 @@
 <div>
 
   <div *ngFor="let message of messages">
-   {{message.from}}:  {{message.text}}
+   <b><i>{{message.from}}</i></b>:  {{message.text}}
   </div>
     <input type="text" [(ngModel)]="msg" value="">
     <button (click)="sendMsg()">Send</button>
