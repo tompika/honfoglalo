@@ -292,12 +292,12 @@ socket.on('inviteResponse',function(response,who){
             //console.log('data: ' + value.question);
 
           });
-
+          io.sockets.in(socket.room).emit("game", true); 
         });
       }).on("error", (err) => {
         console.log("Error: " + err.message);
       });
-      io.sockets.in(socket.room).emit("game", true);
+
 
     }else {
       //TODO
