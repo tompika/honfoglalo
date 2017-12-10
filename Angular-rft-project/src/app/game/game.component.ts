@@ -4,14 +4,15 @@ import { QuestionService, AlertService } from '../_services/index';
 import { NewChatService } from '../_services/newchat.service';
 import { Question } from '../_models/question';
 import { User } from '../_models/user';
+import { ConfirmdialogComponent } from '../confirmdialog/confirmdialog.component';
+import { DialogService } from "ng2-bootstrap-modal";
 
 @Component({
   selector: 'app-game',
   templateUrl: './game.component.html',
   styleUrls: ['./game.component.css']
 })
-export class GameComponent implements OnInit {
-
+export class GameComponent implements  OnInit {
   question: Question;
   currentUser: User;
 
@@ -36,7 +37,8 @@ export class GameComponent implements OnInit {
   constructor(private _questionService: QuestionService,
               private _chatService: NewChatService,
               private router: Router,
-              private _alertService: AlertService) {
+              private _alertService: AlertService,
+              private _dialogService:DialogService) {
 
         this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
         console.log("Jelenlegi felhasznalo: " + this.currentUser.username);
@@ -137,6 +139,8 @@ export class GameComponent implements OnInit {
     } else {
       console.log('else ág' + this.stage);
 
+      this.showConfirm();
+
       this._chatService.endGame();
       this._chatService.getFriends(this.currentUser.username);
       this.router.navigate(['/home']);
@@ -167,8 +171,30 @@ export class GameComponent implements OnInit {
     this.answerClicked = true
     console.log("4. gomb kivalasztva!");
     this._chatService.sendResult(this.stage, '4');
-
   }
+
+  showConfirm() {
+            let disposable = this._dialogService.addDialog(ConfirmdialogComponent, {
+                title:'Game end',
+                message:'A játék véget ért' +
+              '\nVégeredmény: '+
+              '\nJatekos: '+ this.matchResult.p1 + ' score: '+ this.matchResult.s1 +
+              '\nJatekos: '+ this.matchResult.p2 + ' score: ' +this.matchResult.s2})
+                .subscribe((isConfirmed)=>{
+                    //We get dialog result
+                    if(isConfirmed) {
+                        //alert('accepted');
+                    }
+                    else {
+                        //alert('declined');
+                    }
+                });
+            //We can close dialog calling disposable.unsubscribe();
+            //If dialog was not closed manually close it by timeout
+            setTimeout(()=>{
+                disposable.unsubscribe();
+            },10000);
+        }
 
 
 

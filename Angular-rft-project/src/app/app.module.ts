@@ -23,7 +23,8 @@ import { MapComponent } from './map/map.component';
 import { SocketIoModule, SocketIoConfig } from 'ng-socket-io';
 import { NewchatComponent } from './newchat/newchat.component';
 import { NewChatService } from './_services/newchat.service';
-
+import { BootstrapModalModule } from 'ng2-bootstrap-modal';
+import { ConfirmdialogComponent } from './confirmdialog/confirmdialog.component';
 
 const config: SocketIoConfig = { url: 'http://localhost:8080', options: {} };
 
@@ -42,16 +43,20 @@ const config: SocketIoConfig = { url: 'http://localhost:8080', options: {} };
     RegisterComponent,
     ChatComponent,
     NewchatComponent,
-    MapComponent
+    MapComponent,
+    ConfirmdialogComponent
   ],
   imports: [
     FormsModule,
     HttpModule,
     BrowserModule,
     SocketIoModule.forRoot(config),
-
+    BootstrapModalModule,
     CONST_ROUTING
   ],
+  entryComponents: [
+       ConfirmdialogComponent
+     ],
   providers: [
         AuthGuard,
         AlertService,
